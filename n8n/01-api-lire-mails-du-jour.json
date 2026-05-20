@@ -1,0 +1,63 @@
+{
+  "name": "01-api-lire-mails-du-jour",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "mails-today",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ef02cb11-cb94-4ac5-9beb-f0f0cca86a39",
+      "name": "Webhook",
+      "webhookId": "263edc99-9a5c-44fc-9c87-ead6f40b9262"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"date\": \"2026-05-20\",\n  \"resumeGlobal\": \"Aujourd’hui, vous avez reçu plusieurs e-mails concernant un entretien de stage, une réunion de suivi, une demande de document et une information administrative.\",\n  \"mails\": [\n    {\n      \"id\": 1,\n      \"expediteur\": \"rh@entreprise-stage.com\",\n      \"objet\": \"Entretien pour votre demande de stage\",\n      \"dateReception\": \"2026-05-20 08:45\",\n      \"resume\": \"Le service RH propose un entretien pour discuter de votre demande de stage.\",\n      \"contenu\": \"Bonjour, nous avons bien reçu votre demande de stage. Nous souhaitons organiser un entretien afin d’échanger avec vous sur votre profil et vos disponibilités.\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 2,\n      \"expediteur\": \"responsable.projet@gmail.com\",\n      \"objet\": \"Réunion de suivi du projet\",\n      \"dateReception\": \"2026-05-20 10:15\",\n      \"resume\": \"Le responsable souhaite organiser une réunion pour faire le point sur l’avancement du projet.\",\n      \"contenu\": \"Bonjour, pouvez-vous confirmer votre disponibilité pour une réunion de suivi cette semaine afin de faire le point sur l’évolution du projet ?\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 3,\n      \"expediteur\": \"secretariat@ecole.com\",\n      \"objet\": \"Document manquant dans votre dossier\",\n      \"dateReception\": \"2026-05-20 11:30\",\n      \"resume\": \"Le secrétariat signale qu’un document manque dans le dossier administratif.\",\n      \"contenu\": \"Bonjour, après vérification de votre dossier, il manque une copie de votre attestation de stage. Merci de nous la transmettre dès que possible.\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 4,\n      \"expediteur\": \"contact@formation.com\",\n      \"objet\": \"Confirmation d’inscription\",\n      \"dateReception\": \"2026-05-20 14:05\",\n      \"resume\": \"L’organisme confirme votre inscription à une formation en ligne.\",\n      \"contenu\": \"Bonjour, nous vous confirmons votre inscription à la formation en ligne prévue cette semaine. Vous recevrez le lien de connexion prochainement.\",\n      \"statut\": \"non répondu\"\n    }\n  ]\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        0
+      ],
+      "id": "209e7a99-81ae-49db-bb8f-1c46be8cbcee",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "15654705-5f19-4f53-8d83-028f264e8328",
+  "meta": {
+    "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
+  },
+  "id": "pjlmNIpG080NN455",
+  "tags": []
+}

@@ -42,8 +42,17 @@ function App() {
     async function loadMails() {
       // Essaie de charger les données.
       try {
-        // Récupère le fichier JSON placé dans le dossier public.
-        const response = await fetch('/data/mails-today.json')
+                // Récupère l'URL n8n qui donne les e-mails du jour.
+        const mailsUrl = import.meta.env.VITE_N8N_GET_MAILS_URL
+
+        // Vérifie si l'URL n8n est absente du fichier .env.
+        if (!mailsUrl) {
+          // Signale une erreur si l'URL n'est pas configurée.
+          throw new Error('URL n8n des mails manquante dans le fichier .env.')
+        }
+
+        // Demande à n8n de fournir les e-mails du jour.
+        const response = await fetch(mailsUrl)
 
         // Vérifie si la récupération du fichier a échoué.
         if (!response.ok) {
