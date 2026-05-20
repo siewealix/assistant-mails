@@ -33,6 +33,9 @@ function App() {
     // Crée une variable pour stocker le message reçu depuis n8n.
   const [n8nMessage, setN8nMessage] = useState('')
 
+    // Crée une variable pour stocker l'identifiant du mail à lire complètement.
+  const [fullMailId, setFullMailId] = useState(null)
+
   // Crée une variable pour savoir si le test n8n est en cours.
   const [n8nLoading, setN8nLoading] = useState(false)
 
@@ -89,6 +92,9 @@ function App() {
 
   // Recherche le mail actuellement sélectionné par l'utilisateur.
   const selectedMail = mails.find((mail) => mail.id === selectedMailId)
+
+    // Recherche le mail que l'utilisateur veut lire entièrement.
+  const fullMail = mails.find((mail) => mail.id === fullMailId)
 
   // Filtre les e-mails selon la recherche de l'utilisateur.
   const filteredMails = mails.filter((mail) => {
@@ -192,6 +198,18 @@ function App() {
       setN8nLoading(false)
     }
   }
+
+   // Ouvre la zone de lecture complète d'un mail.
+  function handleOpenFullMail(mail) {
+    // Enregistre l'identifiant du mail à afficher complètement.
+    setFullMailId(mail.id)
+  }
+
+  // Ferme la zone de lecture complète.
+  function handleCloseFullMail() {
+    // Supprime l'identifiant du mail affiché.
+    setFullMailId(null)
+  } 
 
   // Retourne l'interface visible de l'application.
   return (
@@ -363,6 +381,11 @@ function App() {
 
               {/* Zone des boutons du mail. */}
               <div className="mail-actions">
+                {/* Bouton pour lire tout le contenu du mail. */}
+                <button className="small-neutral-button" onClick={() => handleOpenFullMail(mail)}>
+                  Lire tout le mail
+                </button>
+
                 {/* Bouton pour ouvrir la zone de réponse manuelle. */}
                 <button className="small-primary-button" onClick={() => handleOpenReply(mail)}>
                   Répondre
@@ -377,6 +400,53 @@ function App() {
           ))}
         </div>
       </section>
+
+            {/* Affiche la lecture complète seulement si un mail est sélectionné. */}
+      {fullMail && (
+        // Section de lecture complète du mail.
+        <section className="full-mail-section">
+          {/* Carte qui contient tout le contenu du mail. */}
+          <article className="full-mail-card">
+            {/* En-tête de la carte de lecture complète. */}
+            <div className="full-mail-header">
+              {/* Bloc du titre de la lecture complète. */}
+              <div>
+                {/* Petit label de la section. */}
+                <p className="card-label">Lecture complète</p>
+
+                {/* Titre de la section. */}
+                <h2>{fullMail.objet}</h2>
+              </div>
+
+              {/* Bouton pour fermer la lecture complète. */}
+              <button className="close-button" onClick={handleCloseFullMail}>
+                Fermer
+              </button>
+            </div>
+
+            {/* Informations principales du mail. */}
+            <div className="full-mail-meta">
+              {/* Affiche l'expéditeur du mail. */}
+              <p><strong>Expéditeur :</strong> {fullMail.expediteur}</p>
+
+              {/* Affiche la date de réception du mail. */}
+              <p><strong>Date :</strong> {fullMail.dateReception}</p>
+
+              {/* Affiche le statut du mail. */}
+              <p><strong>Statut :</strong> {fullMail.statut}</p>
+            </div>
+
+            {/* Bloc contenant le contenu complet du mail. */}
+            <div className="full-mail-content-box">
+              {/* Titre du contenu. */}
+              <h3>Contenu du message</h3>
+
+              {/* Affiche tout le contenu disponible du mail. */}
+              <p className="full-mail-content">{fullMail.contenu}</p>
+            </div>
+          </article>
+        </section>
+      )}
 
       {/* Affiche la zone de réponse seulement si un mail est sélectionné. */}
       {selectedMail && (

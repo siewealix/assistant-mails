@@ -1,0 +1,45 @@
+{
+  "name": "02-test-gmail-n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "21036cbf-43bf-45b4-8b0a-d4d0f513e4a7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nwdnYP9cRmY2oih2",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4b3ac2ee-241c-47f4-8ba9-428a58707e6a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
+  },
+  "id": "97dJ7EBGhHAsxpLS",
+  "tags": []
+}
