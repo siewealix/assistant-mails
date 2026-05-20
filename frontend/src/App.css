@@ -824,3 +824,256 @@
     border-radius: 24px;
   }
 }
+
+/* Style de la section de réponse manuelle. */
+.reply-section {
+  /* Ajoute un espace au-dessus de la section. */
+  margin-top: 24px;
+}
+
+/* Style de la carte de réponse. */
+.reply-card {
+  /* Ajoute un fond blanc transparent. */
+  background: rgba(255, 255, 255, 0.86);
+
+  /* Ajoute un effet de flou moderne. */
+  backdrop-filter: blur(18px);
+
+  /* Ajoute une bordure douce. */
+  border: 1px solid rgba(255, 255, 255, 0.65);
+
+  /* Arrondit fortement les coins. */
+  border-radius: 30px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 26px;
+
+  /* Ajoute une ombre moderne. */
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+}
+
+/* Style de l'en-tête de la zone de réponse. */
+.reply-header {
+  /* Affiche le titre et le bouton fermer sur une ligne. */
+  display: flex;
+
+  /* Place le titre à gauche et le bouton à droite. */
+  justify-content: space-between;
+
+  /* Centre les éléments verticalement. */
+  align-items: center;
+
+  /* Permet de passer à la ligne sur petit écran. */
+  flex-wrap: wrap;
+
+  /* Ajoute un espace entre les éléments. */
+  gap: 16px;
+
+  /* Ajoute un espace sous l'en-tête. */
+  margin-bottom: 18px;
+}
+
+/* Style du titre de la zone de réponse. */
+.reply-header h2 {
+  /* Supprime la marge par défaut. */
+  margin: 0;
+
+  /* Définit une taille agréable. */
+  font-size: 26px;
+}
+
+/* Style du bouton fermer. */
+.close-button {
+  /* Supprime la bordure standard. */
+  border: none;
+
+  /* Ajoute un fond rouge très clair. */
+  background: rgba(239, 68, 68, 0.1);
+
+  /* Définit une couleur rouge. */
+  color: #b91c1c;
+
+  /* Arrondit les coins. */
+  border-radius: 14px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 11px 14px;
+
+  /* Rend le texte plus épais. */
+  font-weight: 800;
+
+  /* Affiche le curseur de clic. */
+  cursor: pointer;
+}
+
+/* Style du bloc des informations du mail. */
+.reply-meta {
+  /* Ajoute un fond bleu très clair. */
+  background: rgba(37, 99, 235, 0.08);
+
+  /* Ajoute une bordure bleue douce. */
+  border: 1px solid rgba(37, 99, 235, 0.12);
+
+  /* Arrondit les coins. */
+  border-radius: 18px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 16px;
+
+  /* Ajoute un espace sous le bloc. */
+  margin-bottom: 18px;
+}
+
+/* Style des paragraphes dans le bloc des informations. */
+.reply-meta p {
+  /* Supprime les grandes marges. */
+  margin: 6px 0;
+
+  /* Définit une couleur de texte lisible. */
+  color: #374151;
+}
+
+/* Style du bloc du message original. */
+.original-message {
+  /* Ajoute un fond blanc. */
+  background: white;
+
+  /* Ajoute une bordure douce. */
+  border: 1px solid rgba(226, 232, 240, 0.9);
+
+  /* Arrondit les coins. */
+  border-radius: 18px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 16px;
+
+  /* Ajoute un espace sous le bloc. */
+  margin-bottom: 18px;
+}
+
+/* Style du titre du message original. */
+.original-message h3 {
+  /* Supprime la marge du haut. */
+  margin-top: 0;
+
+  /* Ajoute une petite marge en bas. */
+  margin-bottom: 8px;
+
+  /* Définit une taille de titre simple. */
+  font-size: 17px;
+}
+
+/* Style du texte du message original. */
+.original-message p {
+  /* Supprime la marge du bas. */
+  margin-bottom: 0;
+
+  /* Définit une couleur grise lisible. */
+  color: #4b5563;
+
+  /* Améliore l'espacement des lignes. */
+  line-height: 1.7;
+}
+
+/* Style du champ de réponse. */
+.reply-textarea {
+  /* Définit une largeur complète. */
+  width: 100%;
+
+  /* Définit une hauteur minimale. */
+  min-height: 150px;
+
+  /* Permet à l'utilisateur d'agrandir verticalement le champ. */
+  resize: vertical;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 16px;
+
+  /* Supprime la bordure standard. */
+  border: none;
+
+  /* Ajoute une bordure personnalisée douce. */
+  outline: 1px solid rgba(37, 99, 235, 0.18);
+
+  /* Arrondit les coins. */
+  border-radius: 18px;
+
+  /* Définit une taille de texte lisible. */
+  font-size: 16px;
+
+  /* Améliore l'espacement des lignes. */
+  line-height: 1.6;
+
+  /* Ajoute un fond blanc. */
+  background: white;
+
+  /* Ajoute une ombre légère. */
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+}
+
+/* Style du champ de réponse quand il est sélectionné. */
+.reply-textarea:focus {
+  /* Met une bordure bleue plus visible. */
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+}
+
+/* Style de la zone des boutons de réponse. */
+.reply-actions {
+  /* Affiche les boutons sur une ligne. */
+  display: flex;
+
+  /* Permet aux boutons de passer à la ligne. */
+  flex-wrap: wrap;
+
+  /* Ajoute un espace entre les boutons. */
+  gap: 12px;
+
+  /* Ajoute un espace au-dessus des boutons. */
+  margin-top: 16px;
+}
+
+/* Style du message de statut de réponse. */
+.reply-status {
+  /* Ajoute un fond vert très clair. */
+  background: rgba(16, 185, 129, 0.12);
+
+  /* Ajoute une bordure verte douce. */
+  border: 1px solid rgba(16, 185, 129, 0.2);
+
+  /* Définit une couleur verte. */
+  color: #047857;
+
+  /* Arrondit les coins. */
+  border-radius: 16px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 14px 16px;
+
+  /* Rend le texte plus épais. */
+  font-weight: 700;
+
+  /* Ajoute un espace au-dessus du message. */
+  margin-top: 16px;
+
+  /* Supprime la marge du bas. */
+  margin-bottom: 0;
+}
+
+/* Adaptation de la zone de réponse sur mobile. */
+@media (max-width: 640px) {
+  /* Les boutons de réponse prennent toute la largeur. */
+  .reply-actions .primary-button,
+  .reply-actions .secondary-button {
+    /* Définit une largeur complète. */
+    width: 100%;
+  }
+
+  /* Réduit l'espace intérieur de la carte de réponse. */
+  .reply-card {
+    /* Diminue le padding sur téléphone. */
+    padding: 18px;
+
+    /* Réduit l'arrondi sur téléphone. */
+    border-radius: 24px;
+  }
+}

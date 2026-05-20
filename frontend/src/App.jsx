@@ -1,7 +1,7 @@
 // Importe useEffect pour charger les données au démarrage de la page.
 import { useEffect } from 'react'
 
-// Importe useState pour stocker les données et les changements dans l'interface.
+// Importe useState pour gérer les données qui changent dans l'interface.
 import { useState } from 'react'
 
 // Importe le fichier CSS de l'application.
@@ -9,63 +9,75 @@ import './App.css'
 
 // Déclare le composant principal de l'application.
 function App() {
-  // Crée une variable pour stocker toutes les données venant du fichier JSON.
+  // Crée une variable pour stocker les données des e-mails.
   const [mailData, setMailData] = useState(null)
 
-  // Crée une variable pour stocker le texte tapé dans la barre de recherche.
+  // Crée une variable pour stocker le texte recherché par l'utilisateur.
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Crée une variable pour savoir si les données sont encore en chargement.
+  // Crée une variable pour savoir si les données sont en chargement.
   const [loading, setLoading] = useState(true)
 
-  // Crée une variable pour stocker un message d'erreur si le chargement échoue.
+  // Crée une variable pour stocker un message d'erreur.
   const [error, setError] = useState('')
 
-  // Lance automatiquement le chargement des mails quand la page s'ouvre.
+  // Crée une variable pour stocker l'identifiant du mail sélectionné.
+  const [selectedMailId, setSelectedMailId] = useState(null)
+
+  // Crée une variable pour stocker le texte de la réponse écrite par l'utilisateur.
+  const [replyText, setReplyText] = useState('')
+
+  // Crée une variable pour afficher un message après la préparation de la réponse.
+  const [replyStatus, setReplyStatus] = useState('')
+
+  // Lance le chargement des e-mails quand la page s'ouvre.
   useEffect(() => {
-    // Crée une fonction asynchrone pour charger les données du fichier JSON.
+    // Crée une fonction pour charger les données depuis le fichier JSON.
     async function loadMails() {
-      // Essaie d'exécuter le chargement des données.
+      // Essaie de charger les données.
       try {
-        // Demande au navigateur de récupérer le fichier JSON dans le dossier public.
+        // Récupère le fichier JSON placé dans le dossier public.
         const response = await fetch('/data/mails-today.json')
 
-        // Vérifie si le fichier a bien été trouvé.
+        // Vérifie si la récupération du fichier a échoué.
         if (!response.ok) {
-          // Lance une erreur si le fichier JSON n'est pas disponible.
+          // Arrête le chargement et signale une erreur.
           throw new Error('Impossible de charger le fichier des e-mails.')
         }
 
-        // Convertit la réponse reçue en données JavaScript utilisables.
+        // Convertit le contenu du fichier JSON en objet JavaScript.
         const data = await response.json()
 
-        // Enregistre les données reçues dans la variable mailData.
+        // Enregistre les données dans l'état de l'application.
         setMailData(data)
 
-        // Vide le message d'erreur parce que le chargement a réussi.
+        // Vide l'éventuel message d'erreur.
         setError('')
       } catch (problem) {
-        // Affiche l'erreur dans la console du navigateur pour aider au diagnostic.
+        // Affiche l'erreur dans la console du navigateur.
         console.error(problem)
 
-        // Enregistre un message simple pour l'utilisateur.
+        // Affiche un message simple à l'utilisateur.
         setError('Les e-mails ne peuvent pas être chargés pour le moment.')
       } finally {
-        // Indique que le chargement est terminé, avec ou sans erreur.
+        // Indique que le chargement est terminé.
         setLoading(false)
       }
     }
 
-    // Appelle la fonction qui charge les mails.
+    // Appelle la fonction de chargement.
     loadMails()
   }, [])
 
-  // Récupère la liste des mails si les données existent, sinon utilise une liste vide.
+  // Récupère la liste des e-mails si elle existe, sinon utilise une liste vide.
   const mails = mailData?.mails || []
 
-  // Filtre les mails selon le texte écrit dans la barre de recherche.
+  // Recherche le mail actuellement sélectionné par l'utilisateur.
+  const selectedMail = mails.find((mail) => mail.id === selectedMailId)
+
+  // Filtre les e-mails selon la recherche de l'utilisateur.
   const filteredMails = mails.filter((mail) => {
-    // Transforme le texte recherché en minuscules pour faciliter la comparaison.
+    // Transforme la recherche en minuscules.
     const search = searchTerm.toLowerCase()
 
     // Vérifie si l'expéditeur contient le texte recherché.
@@ -77,68 +89,108 @@ function App() {
     // Vérifie si le résumé contient le texte recherché.
     const summaryMatch = mail.resume.toLowerCase().includes(search)
 
-    // Garde le mail si une des trois vérifications est vraie.
+    // Garde le mail si une condition est vraie.
     return senderMatch || subjectMatch || summaryMatch
   })
 
-  // Retourne toute l'interface visible dans le navigateur.
+  // Ouvre la zone de réponse pour un mail précis.
+  function handleOpenReply(mail) {
+    // Enregistre l'identifiant du mail sélectionné.
+    setSelectedMailId(mail.id)
+
+    // Vide l'ancien texte de réponse.
+    setReplyText('')
+
+    // Vide l'ancien message de statut.
+    setReplyStatus('')
+  }
+
+  // Prépare la réponse manuelle écrite par l'utilisateur.
+  function handleSendReply() {
+    // Vérifie si aucun mail n'est sélectionné.
+    if (!selectedMail) {
+      // Arrête la fonction si aucun mail n'est sélectionné.
+      return
+    }
+
+    // Vérifie si le champ de réponse est vide.
+    if (replyText.trim() === '') {
+      // Affiche un message si l'utilisateur n'a rien écrit.
+      setReplyStatus('Veuillez écrire une réponse avant de continuer.')
+
+      // Arrête la fonction.
+      return
+    }
+
+    // Affiche la réponse dans la console pour vérifier le contenu.
+    console.log({
+      destinataire: selectedMail.expediteur,
+      objet: `Re: ${selectedMail.objet}`,
+      message: replyText,
+    })
+
+    // Affiche un message de succès temporaire.
+    setReplyStatus('Réponse préparée avec succès. Elle sera envoyée avec n8n dans la prochaine étape.')
+  }
+
+  // Retourne l'interface visible de l'application.
   return (
-    // Conteneur principal de la page.
+    // Conteneur principal de l'application.
     <main className="app">
       {/* Section principale de présentation. */}
       <section className="hero">
-        {/* Bloc contenant le texte principal. */}
+        {/* Bloc du texte principal. */}
         <div className="hero-content">
-          {/* Badge qui indique le contexte technique du projet. */}
+          {/* Badge de présentation du projet. */}
           <p className="badge">Projet de stage • React + n8n + OpenAI</p>
 
-          {/* Grand titre de l'application. */}
+          {/* Titre principal de l'application. */}
           <h1>Assistant intelligent des e-mails du jour</h1>
 
-          {/* Description claire du rôle de l'application. */}
+          {/* Description de l'application. */}
           <p className="hero-description">
             Consultez vos e-mails reçus aujourd’hui, obtenez un résumé automatique et préparez vos réponses facilement depuis une interface moderne.
           </p>
 
-          {/* Zone contenant les deux boutons principaux. */}
+          {/* Zone des boutons principaux. */}
           <div className="hero-actions">
-            {/* Bouton qui servira plus tard à actualiser les mails depuis n8n. */}
+            {/* Bouton prévu plus tard pour actualiser les données depuis n8n. */}
             <button className="primary-button">Actualiser les e-mails</button>
 
-            {/* Bouton qui servira plus tard à générer un résumé avec OpenAI. */}
+            {/* Bouton prévu plus tard pour générer un résumé avec l'IA. */}
             <button className="secondary-button">Générer un résumé IA</button>
           </div>
         </div>
 
-        {/* Carte d'aperçu rapide des informations du jour. */}
+        {/* Carte d'aperçu rapide. */}
         <div className="hero-card">
           {/* Titre de la carte d'aperçu. */}
           <h2>Aperçu du jour</h2>
 
-          {/* Ligne qui affiche le nombre total de mails. */}
+          {/* Ligne du nombre d'e-mails. */}
           <div className="stat-line">
-            {/* Texte de la statistique. */}
+            {/* Libellé de la statistique. */}
             <span>E-mails reçus</span>
 
-            {/* Valeur de la statistique. */}
+            {/* Nombre total d'e-mails. */}
             <strong>{mails.length}</strong>
           </div>
 
-          {/* Ligne qui affiche la date des mails. */}
+          {/* Ligne de la date. */}
           <div className="stat-line">
-            {/* Texte de la statistique. */}
+            {/* Libellé de la date. */}
             <span>Date</span>
 
-            {/* Valeur de la statistique. */}
+            {/* Date des e-mails. */}
             <strong>{mailData?.date || 'Non chargée'}</strong>
           </div>
 
-          {/* Ligne qui affiche l'état du chargement. */}
+          {/* Ligne de l'état de chargement. */}
           <div className="stat-line">
-            {/* Texte de la statistique. */}
+            {/* Libellé de l'état. */}
             <span>État</span>
 
-            {/* Valeur de la statistique. */}
+            {/* Valeur de l'état. */}
             <strong>{loading ? 'Chargement' : 'Prêt'}</strong>
           </div>
         </div>
@@ -146,108 +198,170 @@ function App() {
 
       {/* Section du résumé global. */}
       <section className="summary-section">
-        {/* Carte qui contient le résumé global. */}
+        {/* Carte du résumé global. */}
         <article className="card large-card">
-          {/* Petit label de la carte. */}
+          {/* Label de la carte. */}
           <p className="card-label">Résumé automatique</p>
 
           {/* Titre de la carte. */}
           <h2>Résumé global de la journée</h2>
 
-          {/* Affiche un message de chargement si les données ne sont pas encore prêtes. */}
+          {/* Message affiché pendant le chargement. */}
           {loading && <p>Chargement du résumé global...</p>}
 
-          {/* Affiche un message d'erreur si le chargement a échoué. */}
+          {/* Message affiché en cas d'erreur. */}
           {error && <p className="error-message">{error}</p>}
 
-          {/* Affiche le résumé global si les données sont disponibles. */}
+          {/* Résumé global affiché quand tout est chargé. */}
           {!loading && !error && <p>{mailData?.resumeGlobal}</p>}
         </article>
       </section>
 
-      {/* Section qui contient les outils et la liste des mails. */}
+      {/* Section principale des e-mails. */}
       <section className="mail-section">
-        {/* Bloc supérieur de la liste des mails. */}
+        {/* Barre supérieure de la liste des e-mails. */}
         <div className="mail-toolbar">
-          {/* Bloc contenant le titre et le sous-titre. */}
+          {/* Bloc du titre de la section. */}
           <div>
-            {/* Titre de la section des mails. */}
+            {/* Titre de la section. */}
             <h2>E-mails reçus aujourd’hui</h2>
 
-            {/* Petit texte qui indique le nombre de mails affichés. */}
+            {/* Nombre d'e-mails affichés. */}
             <p>{filteredMails.length} e-mail(s) affiché(s)</p>
           </div>
 
-          {/* Champ de recherche des mails. */}
+          {/* Champ de recherche. */}
           <input
-            // Type du champ de recherche.
             type="text"
-
-            // Texte affiché quand le champ est vide.
             placeholder="Rechercher par expéditeur, objet ou résumé..."
-
-            // Valeur actuelle du champ.
             value={searchTerm}
-
-            // Met à jour searchTerm quand l'utilisateur tape du texte.
             onChange={(event) => setSearchTerm(event.target.value)}
-
-            // Classe CSS du champ de recherche.
             className="search-input"
           />
         </div>
 
-        {/* Affiche un message si les données sont encore en chargement. */}
+        {/* Message affiché pendant le chargement des e-mails. */}
         {loading && <p className="info-message">Chargement des e-mails...</p>}
 
-        {/* Affiche un message si aucun mail ne correspond à la recherche. */}
+        {/* Message affiché si aucun mail ne correspond à la recherche. */}
         {!loading && !error && filteredMails.length === 0 && (
-          // Message visible quand aucun résultat n'est trouvé.
           <p className="info-message">Aucun e-mail ne correspond à votre recherche.</p>
         )}
 
-        {/* Grille contenant les cartes des mails. */}
+        {/* Grille des cartes d'e-mails. */}
         <div className="mail-grid">
-          {/* Parcourt tous les mails filtrés pour les afficher un par un. */}
+          {/* Parcourt les e-mails filtrés. */}
           {filteredMails.map((mail) => (
-            // Carte individuelle d'un mail.
+            // Carte d'un e-mail.
             <article className="mail-card" key={mail.id}>
-              {/* En-tête de la carte du mail. */}
+              {/* En-tête de la carte. */}
               <div className="mail-card-header">
                 {/* Bloc contenant l'expéditeur et l'objet. */}
                 <div>
-                  {/* Adresse de l'expéditeur. */}
+                  {/* Expéditeur du mail. */}
                   <p className="mail-sender">{mail.expediteur}</p>
 
                   {/* Objet du mail. */}
                   <h3>{mail.objet}</h3>
                 </div>
 
-                {/* Badge qui affiche le statut du mail. */}
+                {/* Statut du mail. */}
                 <span className="mail-status">{mail.statut}</span>
               </div>
 
-              {/* Date de réception du mail. */}
+              {/* Date de réception. */}
               <p className="mail-date">{mail.dateReception}</p>
 
-              {/* Résumé court du mail. */}
+              {/* Résumé du mail. */}
               <p className="mail-summary">{mail.resume}</p>
 
-              {/* Zone contenant les boutons d'action du mail. */}
+              {/* Zone des boutons du mail. */}
               <div className="mail-actions">
-                {/* Bouton pour répondre manuellement plus tard. */}
-                <button className="small-primary-button">Répondre</button>
+                {/* Bouton pour ouvrir la zone de réponse manuelle. */}
+                <button className="small-primary-button" onClick={() => handleOpenReply(mail)}>
+                  Répondre
+                </button>
 
-                {/* Bouton pour générer une réponse automatique plus tard. */}
-                <button className="small-secondary-button">Réponse IA</button>
+                {/* Bouton prévu plus tard pour générer une réponse IA. */}
+                <button className="small-secondary-button">
+                  Réponse IA
+                </button>
               </div>
             </article>
           ))}
         </div>
       </section>
+
+      {/* Affiche la zone de réponse seulement si un mail est sélectionné. */}
+      {selectedMail && (
+        // Section de réponse manuelle.
+        <section className="reply-section">
+          {/* Carte de réponse. */}
+          <article className="reply-card">
+            {/* En-tête de la carte de réponse. */}
+            <div className="reply-header">
+              {/* Bloc du titre de réponse. */}
+              <div>
+                {/* Label de la carte. */}
+                <p className="card-label">Réponse manuelle</p>
+
+                {/* Titre de la carte. */}
+                <h2>Répondre à cet e-mail</h2>
+              </div>
+
+              {/* Bouton pour fermer la zone de réponse. */}
+              <button className="close-button" onClick={() => setSelectedMailId(null)}>
+                Fermer
+              </button>
+            </div>
+
+            {/* Informations du mail sélectionné. */}
+            <div className="reply-meta">
+              {/* Destinataire de la réponse. */}
+              <p><strong>À :</strong> {selectedMail.expediteur}</p>
+
+              {/* Objet de la réponse. */}
+              <p><strong>Objet :</strong> Re: {selectedMail.objet}</p>
+            </div>
+
+            {/* Contenu original du mail sélectionné. */}
+            <div className="original-message">
+              {/* Titre du contenu original. */}
+              <h3>Message reçu</h3>
+
+              {/* Texte du contenu original. */}
+              <p>{selectedMail.contenu}</p>
+            </div>
+
+            {/* Champ de saisie de la réponse. */}
+            <textarea
+              placeholder="Écrivez votre réponse ici..."
+              value={replyText}
+              onChange={(event) => setReplyText(event.target.value)}
+              className="reply-textarea"
+            />
+
+            {/* Zone des boutons de la réponse. */}
+            <div className="reply-actions">
+              {/* Bouton pour préparer la réponse. */}
+              <button className="primary-button" onClick={handleSendReply}>
+                Préparer la réponse
+              </button>
+
+              {/* Bouton pour vider le champ de réponse. */}
+              <button className="secondary-button" onClick={() => setReplyText('')}>
+                Effacer
+              </button>
+            </div>
+
+            {/* Message affiché après une action sur la réponse. */}
+            {replyStatus && <p className="reply-status">{replyStatus}</p>}
+          </article>
+        </section>
+      )}
     </main>
   )
 }
 
-// Exporte le composant App pour que React puisse l'afficher.
+// Exporte le composant principal.
 export default App
