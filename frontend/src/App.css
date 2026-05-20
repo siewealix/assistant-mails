@@ -477,3 +477,350 @@
     width: 100%;
   }
 }
+
+/* Style de la section du résumé global. */
+.summary-section {
+  /* Ajoute un espace sous la section. */
+  margin-bottom: 24px;
+}
+
+/* Style de la section contenant les mails. */
+.mail-section {
+  /* Ajoute un fond blanc transparent. */
+  background: rgba(255, 255, 255, 0.72);
+
+  /* Ajoute un effet moderne de flou. */
+  backdrop-filter: blur(18px);
+
+  /* Ajoute une bordure douce. */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  /* Arrondit les coins de la section. */
+  border-radius: 30px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 26px;
+
+  /* Ajoute une ombre douce. */
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+/* Style de la barre supérieure de la section mails. */
+.mail-toolbar {
+  /* Affiche le titre et la recherche sur une ligne. */
+  display: flex;
+
+  /* Place le titre à gauche et la recherche à droite. */
+  justify-content: space-between;
+
+  /* Centre les éléments verticalement. */
+  align-items: center;
+
+  /* Permet aux éléments de passer à la ligne sur petit écran. */
+  flex-wrap: wrap;
+
+  /* Ajoute de l'espace entre les éléments. */
+  gap: 18px;
+
+  /* Ajoute un espace sous la barre. */
+  margin-bottom: 22px;
+}
+
+/* Style du titre de la section mails. */
+.mail-toolbar h2 {
+  /* Supprime la marge par défaut. */
+  margin: 0 0 6px;
+
+  /* Définit une taille de titre confortable. */
+  font-size: 26px;
+}
+
+/* Style du texte sous le titre de la section mails. */
+.mail-toolbar p {
+  /* Supprime la marge par défaut. */
+  margin: 0;
+
+  /* Définit une couleur grise. */
+  color: var(--text-light);
+}
+
+/* Style du champ de recherche. */
+.search-input {
+  /* Définit une largeur minimale confortable. */
+  min-width: 320px;
+
+  /* Définit une largeur maximale responsive. */
+  max-width: 100%;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 14px 16px;
+
+  /* Supprime la bordure standard. */
+  border: none;
+
+  /* Ajoute une bordure personnalisée douce. */
+  outline: 1px solid rgba(37, 99, 235, 0.18);
+
+  /* Arrondit les coins. */
+  border-radius: 16px;
+
+  /* Définit un fond blanc. */
+  background: white;
+
+  /* Définit une taille de texte lisible. */
+  font-size: 15px;
+
+  /* Ajoute une ombre légère. */
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+}
+
+/* Style du champ quand il est sélectionné. */
+.search-input:focus {
+  /* Change la bordure pour montrer que le champ est actif. */
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+}
+
+/* Style de la grille des mails. */
+.mail-grid {
+  /* Affiche les mails sous forme de grille. */
+  display: grid;
+
+  /* Crée des colonnes automatiques adaptées à l'écran. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  /* Ajoute de l'espace entre les cartes. */
+  gap: 18px;
+}
+
+/* Style d'une carte de mail. */
+.mail-card {
+  /* Ajoute un fond blanc. */
+  background: white;
+
+  /* Ajoute une bordure douce. */
+  border: 1px solid rgba(226, 232, 240, 0.9);
+
+  /* Arrondit les coins. */
+  border-radius: 24px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 20px;
+
+  /* Ajoute une ombre légère. */
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+
+  /* Anime la carte au survol. */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Effet au passage de la souris sur une carte de mail. */
+.mail-card:hover {
+  /* Déplace légèrement la carte vers le haut. */
+  transform: translateY(-4px);
+
+  /* Rend l'ombre plus visible. */
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.13);
+}
+
+/* Style de l'en-tête d'une carte de mail. */
+.mail-card-header {
+  /* Affiche l'expéditeur et le statut sur une ligne. */
+  display: flex;
+
+  /* Place les éléments aux extrémités. */
+  justify-content: space-between;
+
+  /* Aligne les éléments en haut. */
+  align-items: flex-start;
+
+  /* Ajoute de l'espace entre les éléments. */
+  gap: 14px;
+
+  /* Ajoute un espace sous l'en-tête. */
+  margin-bottom: 10px;
+}
+
+/* Style de l'expéditeur. */
+.mail-sender {
+  /* Supprime la marge du haut. */
+  margin: 0 0 8px;
+
+  /* Définit une couleur bleue. */
+  color: var(--primary);
+
+  /* Rend le texte plus épais. */
+  font-weight: 700;
+
+  /* Définit une taille de texte. */
+  font-size: 14px;
+
+  /* Coupe proprement les longues adresses. */
+  word-break: break-word;
+}
+
+/* Style de l'objet du mail. */
+.mail-card h3 {
+  /* Supprime les marges par défaut. */
+  margin: 0;
+
+  /* Définit une taille de titre. */
+  font-size: 19px;
+
+  /* Améliore l'espacement des lignes. */
+  line-height: 1.35;
+}
+
+/* Style du badge de statut. */
+.mail-status {
+  /* Empêche le statut de se réduire. */
+  flex-shrink: 0;
+
+  /* Ajoute un fond vert très clair. */
+  background: rgba(16, 185, 129, 0.12);
+
+  /* Définit une couleur verte. */
+  color: #047857;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 7px 10px;
+
+  /* Arrondit fortement les coins. */
+  border-radius: 999px;
+
+  /* Définit une petite taille. */
+  font-size: 12px;
+
+  /* Rend le texte plus épais. */
+  font-weight: 800;
+}
+
+/* Style de la date du mail. */
+.mail-date {
+  /* Supprime la marge du haut. */
+  margin-top: 0;
+
+  /* Définit une couleur grise. */
+  color: var(--text-light);
+
+  /* Définit une petite taille. */
+  font-size: 14px;
+}
+
+/* Style du résumé du mail. */
+.mail-summary {
+  /* Définit une couleur de texte confortable. */
+  color: #374151;
+
+  /* Améliore l'espacement entre les lignes. */
+  line-height: 1.65;
+
+  /* Ajoute une marge en bas. */
+  margin-bottom: 18px;
+}
+
+/* Style de la zone des boutons d'un mail. */
+.mail-actions {
+  /* Affiche les boutons sur une ligne. */
+  display: flex;
+
+  /* Permet aux boutons de passer à la ligne. */
+  flex-wrap: wrap;
+
+  /* Ajoute de l'espace entre les boutons. */
+  gap: 10px;
+}
+
+/* Style commun des petits boutons. */
+.small-primary-button,
+.small-secondary-button {
+  /* Supprime la bordure par défaut. */
+  border: none;
+
+  /* Arrondit les coins. */
+  border-radius: 13px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 10px 13px;
+
+  /* Affiche le curseur de clic. */
+  cursor: pointer;
+
+  /* Rend le texte plus épais. */
+  font-weight: 700;
+
+  /* Anime légèrement les boutons. */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Style du petit bouton principal. */
+.small-primary-button {
+  /* Ajoute un dégradé bleu violet. */
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+
+  /* Définit le texte en blanc. */
+  color: white;
+}
+
+/* Style du petit bouton secondaire. */
+.small-secondary-button {
+  /* Ajoute un fond bleu clair. */
+  background: rgba(37, 99, 235, 0.1);
+
+  /* Définit la couleur du texte. */
+  color: var(--primary);
+}
+
+/* Effet au survol des petits boutons. */
+.small-primary-button:hover,
+.small-secondary-button:hover {
+  /* Déplace légèrement le bouton vers le haut. */
+  transform: translateY(-2px);
+
+  /* Ajoute une ombre douce. */
+  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
+}
+
+/* Style des messages d'information. */
+.info-message {
+  /* Ajoute un fond blanc. */
+  background: white;
+
+  /* Ajoute une bordure douce. */
+  border: 1px solid rgba(226, 232, 240, 0.9);
+
+  /* Arrondit les coins. */
+  border-radius: 18px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 18px;
+
+  /* Définit une couleur grise. */
+  color: var(--text-light);
+}
+
+/* Style des messages d'erreur. */
+.error-message {
+  /* Définit une couleur rouge. */
+  color: #b91c1c;
+}
+
+/* Adaptation mobile de la barre des mails. */
+@media (max-width: 640px) {
+  /* Le champ de recherche prend toute la largeur. */
+  .search-input {
+    /* Définit une largeur complète. */
+    width: 100%;
+
+    /* Supprime la largeur minimale sur mobile. */
+    min-width: 0;
+  }
+
+  /* Réduit l'espace de la section mails sur mobile. */
+  .mail-section {
+    /* Réduit le padding. */
+    padding: 18px;
+
+    /* Réduit l'arrondi. */
+    border-radius: 24px;
+  }
+}
