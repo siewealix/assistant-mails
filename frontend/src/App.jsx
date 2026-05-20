@@ -30,6 +30,12 @@ function App() {
   // Crée une variable pour afficher un message après la préparation de la réponse.
   const [replyStatus, setReplyStatus] = useState('')
 
+    // Crée une variable pour stocker le message reçu depuis n8n.
+  const [n8nMessage, setN8nMessage] = useState('')
+
+  // Crée une variable pour savoir si le test n8n est en cours.
+  const [n8nLoading, setN8nLoading] = useState(false)
+
   // Lance le chargement des e-mails quand la page s'ouvre.
   useEffect(() => {
     // Crée une fonction pour charger les données depuis le fichier JSON.
@@ -133,6 +139,51 @@ function App() {
     setReplyStatus('Réponse préparée avec succès. Elle sera envoyée avec n8n dans la prochaine étape.')
   }
 
+    // Teste la connexion entre React et n8n.
+  async function handleTestN8nConnection() {
+    // Vide l'ancien message n8n avant de commencer un nouveau test.
+    setN8nMessage('')
+
+    // Indique que le test est en cours.
+    setN8nLoading(true)
+
+    // Essaie d'appeler le webhook n8n.
+    try {
+      // Récupère l'URL du webhook n8n depuis le fichier .env.
+      const n8nUrl = import.meta.env.VITE_N8N_TEST_URL
+
+      // Vérifie si l'URL du webhook est absente.
+      if (!n8nUrl) {
+        // Lance une erreur si l'URL n'est pas définie.
+        throw new Error('URL n8n manquante dans le fichier .env.')
+      }
+
+      // Envoie une demande GET vers n8n.
+      const response = await fetch(n8nUrl)
+
+      // Vérifie si n8n a répondu avec une erreur.
+      if (!response.ok) {
+        // Lance une erreur si la réponse n'est pas correcte.
+        throw new Error('n8n a répondu avec une erreur.')
+      }
+
+      // Convertit la réponse JSON de n8n en objet JavaScript.
+      const data = await response.json()
+
+      // Affiche le message reçu depuis n8n dans l'interface.
+      setN8nMessage(data.message || 'Connexion réussie avec n8n.')
+    } catch (problem) {
+      // Affiche l'erreur dans la console du navigateur.
+      console.error(problem)
+
+      // Affiche un message d'erreur simple dans l'interface.
+      setN8nMessage('Connexion impossible avec n8n. Vérifiez que n8n est lancé et que le workflow est actif.')
+    } finally {
+      // Indique que le test est terminé.
+      setN8nLoading(false)
+    }
+  }
+
   // Retourne l'interface visible de l'application.
   return (
     // Conteneur principal de l'application.
@@ -142,7 +193,7 @@ function App() {
         {/* Bloc du texte principal. */}
         <div className="hero-content">
           {/* Badge de présentation du projet. */}
-          <p className="badge">Projet de stage • React + n8n + OpenAI</p>
+          <p className="badge">Projet • React + n8n + OpenAI</p>
 
           {/* Titre principal de l'application. */}
           <h1>Assistant intelligent des e-mails du jour</h1>
@@ -154,8 +205,10 @@ function App() {
 
           {/* Zone des boutons principaux. */}
           <div className="hero-actions">
-            {/* Bouton prévu plus tard pour actualiser les données depuis n8n. */}
-            <button className="primary-button">Actualiser les e-mails</button>
+            {/* Bouton qui teste la connexion entre React et n8n. */}
+            <button className="primary-button" onClick={handleTestN8nConnection}>
+              {n8nLoading ? 'Test en cours...' : 'Tester n8n'}
+            </button>
 
             {/* Bouton prévu plus tard pour générer un résumé avec l'IA. */}
             <button className="secondary-button">Générer un résumé IA</button>
@@ -193,7 +246,31 @@ function App() {
             {/* Valeur de l'état. */}
             <strong>{loading ? 'Chargement' : 'Prêt'}</strong>
           </div>
+
+          {/* Ligne qui affiche le message reçu depuis n8n. */}
+          <div className="stat-line">
+            {/* Libellé de la connexion n8n. */}
+            <span>n8n</span>
+
+            {/* Message court selon l'état de la connexion. */}
+            <strong>{n8nMessage ? 'Connecté' : 'Non testé'}</strong>
+          </div>
         </div>
+
+              {/* Affiche le message retourné par n8n après le test de connexion. */}
+      {n8nMessage && (
+        // Section visible uniquement quand un message n8n existe.
+        <section className="connection-section">
+          {/* Carte du résultat de connexion. */}
+          <article className="connection-card">
+            {/* Petit label de la carte. */}
+            <p className="card-label">Connexion n8n</p>
+
+            {/* Message reçu depuis n8n. */}
+            <p>{n8nMessage}</p>
+          </article>
+        </section>
+      )}
       </section>
 
       {/* Section du résumé global. */}

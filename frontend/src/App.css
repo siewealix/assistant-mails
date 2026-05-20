@@ -1077,3 +1077,51 @@
     border-radius: 24px;
   }
 }
+
+/* Style de la section qui affiche le résultat du test n8n. */
+.connection-section {
+  /* Ajoute un espace sous la section. */
+  margin-bottom: 24px;
+}
+
+/* Style de la carte de connexion n8n. */
+.connection-card {
+  /* Ajoute un fond vert très clair pour indiquer une connexion réussie. */
+  background: rgba(16, 185, 129, 0.12);
+
+  /* Ajoute une bordure verte douce. */
+  border: 1px solid rgba(16, 185, 129, 0.25);
+
+  /* Arrondit fortement les coins. */
+  border-radius: 24px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 20px 24px;
+
+  /* Ajoute une ombre légère. */
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+/* Style du texte dans la carte de connexion. */
+.connection-card p {
+  /* Supprime les grandes marges. */
+  margin: 0;
+
+  /* Définit une couleur verte foncée. */
+  color: #047857;
+
+  /* Rend le texte plus épais. */
+  font-weight: 700;
+
+  /* Améliore la lisibilité. */
+  line-height: 1.6;
+}
+
+/* Style spécial du label dans la carte de connexion. */
+.connection-card .card-label {
+  /* Ajoute une petite marge sous le label. */
+  margin-bottom: 8px;
+
+  /* Définit une couleur verte. */
+  color: #059669;
+}
