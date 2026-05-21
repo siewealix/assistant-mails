@@ -30,6 +30,12 @@ function App() {
   // Crée une variable pour afficher un message après la préparation de la réponse.
   const [replyStatus, setReplyStatus] = useState('')
 
+    // Crée une variable pour savoir quel mail est en cours de génération IA.
+  const [aiLoadingMailId, setAiLoadingMailId] = useState(null)
+
+    // Crée une variable pour afficher une bulle d'information à l'utilisateur.
+  const [scrollNotice, setScrollNotice] = useState('')
+
     // Crée une variable pour stocker le message reçu depuis n8n.
   const [n8nMessage, setN8nMessage] = useState('')
 
@@ -135,7 +141,7 @@ function App() {
     return senderMatch || subjectMatch || summaryMatch
   })
 
-  // Ouvre la zone de réponse pour un mail précis.
+    // Ouvre la zone de réponse pour un mail précis.
   function handleOpenReply(mail) {
     // Enregistre l'identifiant du mail sélectionné.
     setSelectedMailId(mail.id)
@@ -145,6 +151,15 @@ function App() {
 
     // Vide l'ancien message de statut.
     setReplyStatus('')
+
+    // Affiche une bulle pour guider l'utilisateur.
+    showScrollNotice('La zone de réponse s’affiche plus bas. Descendez pour écrire votre réponse.')
+
+    // Descend légèrement après l'ouverture de la zone.
+    setTimeout(() => {
+      // Fait descendre la page vers le bas.
+      scrollToBottom()
+    }, 300)
   }
 
     // Envoie la réponse manuelle vers n8n.
@@ -211,6 +226,38 @@ function App() {
       // Convertit la réponse de n8n en JSON.
       const data = await response.json()
 
+      
+
+            // Met à jour la liste des mails après l'envoi de la réponse.
+      setMailData((previousData) => {
+        // Vérifie si les anciennes données existent.
+        if (!previousData) {
+          // Retourne les anciennes données si elles n'existent pas.
+          return previousData
+        }
+
+        // Crée une nouvelle liste de mails avec le statut mis à jour.
+        const updatedMails = previousData.mails.map((mail) => {
+          // Vérifie si le mail courant est celui qui vient de recevoir une réponse.
+          if (mail.messageId === selectedMail.messageId) {
+            // Retourne le même mail avec le statut répondu.
+            return {
+              ...mail,
+              statut: 'répondu',
+            }
+          }
+
+          // Retourne les autres mails sans modification.
+          return mail
+        })
+
+        // Retourne toutes les données avec la nouvelle liste de mails.
+        return {
+          ...previousData,
+          mails: updatedMails,
+        }
+      })
+
       // Affiche le message de succès.
       setReplyStatus(data.message || 'Réponse envoyée avec succès.')
 
@@ -270,10 +317,19 @@ function App() {
     }
   }
 
-   // Ouvre la zone de lecture complète d'un mail.
+    // Ouvre la zone de lecture complète d'un mail.
   function handleOpenFullMail(mail) {
     // Enregistre l'identifiant du mail à afficher complètement.
     setFullMailId(mail.id)
+
+    // Affiche une bulle pour guider l'utilisateur.
+    showScrollNotice('Le mail complet s’affiche plus bas. Descendez pour le lire.')
+
+    // Descend légèrement après l'ouverture de la zone.
+    setTimeout(() => {
+      // Fait descendre la page vers le bas.
+      scrollToBottom()
+    }, 300)
   }
 
   // Ferme la zone de lecture complète.
@@ -305,6 +361,120 @@ function App() {
 
     // Nettoie chaque ligne et retire les lignes vides.
     return lines.map((line) => line.trim()).filter(Boolean)
+  }
+
+    // Génère une proposition de réponse avec Groq via n8n.
+  async function handleGenerateAiReply(mail) {
+    // Enregistre le mail sélectionné pour ouvrir la zone de réponse.
+    setSelectedMailId(mail.id)
+
+    // Affiche une bulle pour guider l'utilisateur.
+    showScrollNotice('La réponse IA va s’afficher plus bas. Descendez pour la consulter et la modifier.')
+
+    // Vide l'ancien texte de réponse.
+    setReplyText('')
+
+    // Affiche un message pendant la génération.
+    setReplyStatus('Génération de la réponse IA en cours...')
+
+    // Indique quel mail est en cours de traitement.
+    setAiLoadingMailId(mail.id)
+
+        // Descend légèrement après l'ouverture de la zone.
+    setTimeout(() => {
+      // Fait descendre la page vers le bas.
+      scrollToBottom()
+    }, 300)
+
+    // Récupère l'URL n8n pour la réponse IA.
+    const aiUrl = import.meta.env.VITE_N8N_REPLY_AI_URL
+
+    // Vérifie si l'URL est absente.
+    if (!aiUrl) {
+      // Affiche une erreur.
+      setReplyStatus('URL n8n manquante pour générer la réponse IA.')
+
+      // Arrête le chargement IA.
+      setAiLoadingMailId(null)
+
+      // Arrête la fonction.
+      return
+    }
+
+    // Essaie d'appeler n8n.
+    try {
+      // Envoie les informations du mail à n8n.
+      const response = await fetch(aiUrl, {
+        // Utilise POST pour envoyer des données.
+        method: 'POST',
+
+        // Indique que les données envoyées sont en JSON.
+        headers: {
+          // Définit le type du contenu envoyé.
+          'Content-Type': 'application/json',
+        },
+
+        // Convertit les données du mail en JSON.
+        body: JSON.stringify({
+          // Envoie l'expéditeur.
+          expediteur: mail.expediteur,
+
+          // Envoie l'objet.
+          objet: mail.objet,
+
+          // Envoie le contenu complet.
+          contenu: mail.contenu,
+        }),
+      })
+
+      // Vérifie si n8n a renvoyé une erreur.
+      if (!response.ok) {
+        // Lance une erreur.
+        throw new Error('Erreur pendant la génération de la réponse IA.')
+      }
+
+      // Convertit la réponse en JSON.
+      const data = await response.json()
+
+      // Met la réponse IA dans la zone de texte.
+      setReplyText(data.reply || '')
+
+      // Affiche un message de succès.
+      setReplyStatus(data.message || 'Réponse IA générée avec succès. Vous pouvez la modifier avant envoi.')
+    } catch (problem) {
+      // Affiche l'erreur dans la console.
+      console.error(problem)
+
+      // Affiche un message simple.
+      setReplyStatus('Impossible de générer une réponse IA pour le moment.')
+    } finally {
+      // Arrête le chargement IA.
+      setAiLoadingMailId(null)
+    }
+  }
+
+    // Affiche une bulle qui indique à l'utilisateur de descendre dans la page.
+  function showScrollNotice(message) {
+    // Affiche le message reçu dans la bulle.
+    setScrollNotice(message)
+
+    // Cache automatiquement la bulle après quelques secondes.
+    setTimeout(() => {
+      // Vide le message pour cacher la bulle.
+      setScrollNotice('')
+    }, 5000)
+  }
+
+  // Fait descendre automatiquement la page vers le bas.
+  function scrollToBottom() {
+    // Demande au navigateur de descendre doucement jusqu'en bas de la page.
+    window.scrollTo({
+      // Position verticale tout en bas de la page.
+      top: document.body.scrollHeight,
+
+      // Animation douce pendant le déplacement.
+      behavior: 'smooth',
+    })
   }
 
   // Retourne l'interface visible de l'application.
@@ -505,9 +675,9 @@ function App() {
                   Répondre
                 </button>
 
-                {/* Bouton prévu plus tard pour générer une réponse IA. */}
-                <button className="small-secondary-button">
-                  Réponse IA
+                {/* Bouton pour générer une réponse automatique avec Groq. */}
+                <button className="small-secondary-button" onClick={() => handleGenerateAiReply(mail)}>
+                  {aiLoadingMailId === mail.id ? 'Génération...' : 'Réponse IA'}
                 </button>
               </div>
             </article>
@@ -628,6 +798,19 @@ function App() {
             {replyStatus && <p className="reply-status">{replyStatus}</p>}
           </article>
         </section>
+      )}
+            {/* Affiche une bulle pour guider l'utilisateur vers le bas de la page. */}
+      {scrollNotice && (
+        // Bulle d'information visible temporairement.
+        <div className="scroll-notice">
+          {/* Texte de la bulle. */}
+          <p>{scrollNotice}</p>
+
+          {/* Bouton pour descendre automatiquement. */}
+          <button onClick={scrollToBottom}>
+            Descendre
+          </button>
+        </div>
       )}
     </main>
   )

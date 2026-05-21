@@ -11,7 +11,7 @@
       "typeVersion": 2.1,
       "position": [
         544,
-        16
+        96
       ],
       "id": "d4ceb5f3-fc91-4731-8e42-7d9c7684e00e",
       "name": "Webhook",
@@ -25,7 +25,7 @@
       "typeVersion": 2,
       "position": [
         768,
-        16
+        96
       ],
       "id": "deeee034-6f5f-48fa-875f-4ad82e7073e8",
       "name": "Préparer la recherche du jour",
@@ -44,8 +44,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        976,
-        16
+        992,
+        96
       ],
       "id": "d8853610-4fac-4f17-a0c8-52806623e9d5",
       "name": "Récupérer les mails du jour",
@@ -68,7 +68,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        1840,
+        1888,
         0
       ],
       "id": "69d7be88-440e-4a0d-8a54-22d41a96393c",
@@ -89,7 +89,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2096,
+        2128,
         0
       ],
       "id": "45c3db80-3ddb-47d6-8235-9dc8675238d8",
@@ -105,7 +105,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        3120,
+        3280,
         0
       ],
       "id": "6ba9776a-6bf8-439b-90d9-845472233b62",
@@ -113,12 +113,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Récupère les données venant du nœud précédent.\nconst data = $input.first().json\n\n// Récupère la liste des messages.\nconst messages = data.messages || []\n\n// Crée une liste vide pour stocker les IDs préparés.\nconst preparedItems = []\n\n// Parcourt tous les messages.\nfor (const message of messages) {\n  // Récupère l'identifiant Gmail du message.\n  const rawId = message.id || message.messageId || message.message_id\n\n  // Vérifie si l'identifiant existe.\n  if (!rawId) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Transforme l'identifiant en texte propre.\n  const messageId = String(rawId).trim()\n\n  // Vérifie si l'identifiant est vide.\n  if (!messageId) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Vérifie si l'identifiant est invalide.\n  if (messageId === 'undefined' || messageId === 'null' || messageId.includes('{{')) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Ajoute un élément propre pour le nœud Gmail suivant.\n  preparedItems.push({\n    json: {\n      id: messageId,\n      messageId: messageId,\n      threadId: message.threadId || ''\n    }\n  })\n}\n\n// Vérifie si aucun identifiant valide n'a été trouvé.\nif (preparedItems.length === 0) {\n  // Arrête le workflow avec un message clair.\n  throw new Error('Aucun ID Gmail valide trouvé pour lire le détail des mails.')\n}\n\n// Retourne les IDs au nœud Gmail suivant.\nreturn preparedItems"
+        "jsCode": "// Récupère les données venant du nœud IF.\nconst data = $input.first().json\n\n// Récupère la liste des messages.\nconst messages = data.messages || []\n\n// Transforme chaque mail en ID propre pour le nœud Gmail suivant.\nconst preparedItems = messages.map((message) => {\n  // Récupère l'ID Gmail du message.\n  const messageId = String(message.id).trim()\n\n  // Retourne un item propre.\n  return {\n    json: {\n      id: messageId,\n      messageId: messageId,\n      threadId: message.threadId || ''\n    }\n  }\n})\n\n// Retourne les IDs au nœud suivant.\nreturn preparedItems"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1616,
+        1664,
         0
       ],
       "id": "bf0039a0-cc24-4e9f-9758-4474fe031277",
@@ -132,7 +132,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2320,
+        2400,
         0
       ],
       "id": "02c0bbfb-9ee0-40b2-b748-cf9626c6482c",
@@ -151,7 +151,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        2528,
+        2640,
         0
       ],
       "id": "c9a34f73-38ab-42cc-88be-87173f47e84b",
@@ -169,8 +169,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        2528,
-        176
+        2640,
+        208
       ],
       "id": "ccc15eae-2a4b-463a-9c94-01aa18dd83ca",
       "name": "Modèle Groq",
@@ -188,7 +188,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2864,
+        3040,
         0
       ],
       "id": "fe6c5837-abae-42ad-8fd7-2d2f4b81a5ed",
@@ -197,13 +197,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// Récupère tous les éléments reçus depuis le nœud Gmail précédent.\nconst items = $input.all()\n\n// Crée une date avec la date actuelle.\nconst now = new Date()\n\n// Récupère l'année actuelle.\nconst year = now.getFullYear()\n\n// Récupère le mois actuel avec deux chiffres.\nconst month = String(now.getMonth() + 1).padStart(2, '0')\n\n// Récupère le jour actuel avec deux chiffres.\nconst day = String(now.getDate()).padStart(2, '0')\n\n// Crée la date du jour au format utilisé par React.\nconst today = `${year}-${month}-${day}`\n\n// Crée une liste vide pour stocker les vrais messages Gmail.\nconst messages = []\n\n// Parcourt tous les éléments reçus.\nfor (const item of items) {\n  // Récupère le JSON de l'élément courant.\n  const data = item.json || {}\n\n  // Vérifie si l'élément courant contient directement un ID Gmail.\n  if (data.id || data.messageId || data.message_id) {\n    // Ajoute l'élément courant dans la liste des messages.\n    messages.push(data)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé messages.\n  if (Array.isArray(data.messages)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.messages)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé data.\n  if (Array.isArray(data.data)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.data)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé items.\n  if (Array.isArray(data.items)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.items)\n  }\n}\n\n// Garde seulement les messages qui ont un vrai identifiant.\nconst validMessages = messages.filter((message) => {\n  // Récupère l'identifiant possible du message.\n  const id = message.id || message.messageId || message.message_id\n\n  // Vérifie si l'identifiant existe.\n  if (!id) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Transforme l'identifiant en texte.\n  const textId = String(id).trim()\n\n  // Refuse les identifiants vides.\n  if (!textId) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Refuse les valeurs invalides.\n  if (textId === 'undefined' || textId === 'null' || textId.includes('{{')) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Accepte ce message.\n  return true\n})\n\n// Vérifie si aucun mail valide n'a été trouvé.\nif (validMessages.length === 0) {\n  // Retourne une réponse propre pour React.\n  return [\n    {\n      json: {\n        hasMails: false,\n        date: today,\n        resumeGlobal: \"Aucun e-mail reçu aujourd’hui. Vous n’avez aucune action à traiter pour le moment.\",\n        mails: []\n      }\n    }\n  ]\n}\n\n// Retourne les messages valides pour la branche True.\nreturn [\n  {\n    json: {\n      hasMails: true,\n      date: today,\n      messages: validMessages\n    }\n  }\n]"
+        "jsCode": "// Récupère tous les éléments reçus depuis le nœud Gmail précédent.\nconst items = $input.all()\n\n// Crée une date avec la date actuelle.\nconst now = new Date()\n\n// Récupère l'année actuelle.\nconst year = now.getFullYear()\n\n// Récupère le mois actuel avec deux chiffres.\nconst month = String(now.getMonth() + 1).padStart(2, '0')\n\n// Récupère le jour actuel avec deux chiffres.\nconst day = String(now.getDate()).padStart(2, '0')\n\n// Crée la date du jour au format attendu par React.\nconst today = `${year}-${month}-${day}`\n\n// Crée une liste vide pour stocker les vrais mails trouvés.\nconst messages = []\n\n// Parcourt tous les éléments reçus.\nfor (const item of items) {\n  // Récupère les données JSON de l'élément actuel.\n  const data = item.json || {}\n\n  // Vérifie si l'élément contient directement un vrai identifiant Gmail.\n  if (data.id) {\n    // Ajoute ce mail dans la liste.\n    messages.push(data)\n  }\n\n  // Vérifie si l'élément contient une liste de messages.\n  if (Array.isArray(data.messages)) {\n    // Ajoute tous les messages trouvés.\n    messages.push(...data.messages)\n  }\n\n  // Vérifie si l'élément contient une liste data.\n  if (Array.isArray(data.data)) {\n    // Ajoute tous les éléments trouvés.\n    messages.push(...data.data)\n  }\n\n  // Vérifie si l'élément contient une liste items.\n  if (Array.isArray(data.items)) {\n    // Ajoute tous les éléments trouvés.\n    messages.push(...data.items)\n  }\n}\n\n// Garde uniquement les messages qui ont un ID Gmail correct.\nconst validMessages = messages.filter((message) => {\n  // Récupère l'identifiant du message.\n  const id = message.id\n\n  // Refuse si l'identifiant est absent.\n  if (!id) {\n    return false\n  }\n\n  // Transforme l'identifiant en texte.\n  const cleanId = String(id).trim()\n\n  // Refuse les identifiants vides.\n  if (!cleanId) {\n    return false\n  }\n\n  // Refuse les valeurs invalides.\n  if (cleanId === 'undefined' || cleanId === 'null' || cleanId.includes('{{')) {\n    return false\n  }\n\n  // Accepte le message.\n  return true\n})\n\n// Retourne une seule sortie claire pour le nœud IF.\nreturn [\n  {\n    json: {\n      date: today,\n      mailCount: validMessages.length,\n      messages: validMessages,\n      resumeGlobal: validMessages.length === 0\n        ? \"Aucun e-mail reçu aujourd’hui. Vous n’avez aucune action à traiter pour le moment.\"\n        : `${validMessages.length} e-mail(s) reçu(s) aujourd’hui ont été récupéré(s) depuis Gmail.`,\n      mails: []\n    }\n  }\n]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1168,
-        16
+        1216,
+        96
       ],
       "id": "f5ab7366-2885-4094-80b9-6032a5ff5d37",
       "name": "Vérifier s’il y a des mails",
@@ -215,44 +215,44 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict",
+            "typeValidation": "loose",
             "version": 3
           },
           "conditions": [
             {
               "id": "78944045-f3e3-43ff-9e1f-17dd35245249",
-              "leftValue": "={{ $json.hasMails }}",
-              "rightValue": "",
+              "leftValue": "={{ $json.mailCount }}",
+              "rightValue": 0,
               "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
+                "type": "number",
+                "operation": "gt"
               }
             }
           ],
           "combinator": "and"
         },
+        "looseTypeValidation": true,
         "options": {}
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1392,
-        16
+        1440,
+        96
       ],
       "id": "570c9feb-182d-4f19-a19e-e4b64bb6e773",
       "name": "Y a-t-il des mails ?",
-      "alwaysOutputData": true
+      "alwaysOutputData": false
     },
     {
       "parameters": {
-        "jsCode": "// Récupère les données venant du nœud précédent.\nconst data = $input.first().json\n\n// Retourne uniquement le JSON attendu par React.\nreturn [\n  {\n    json: {\n      date: data.date,\n      resumeGlobal: data.resumeGlobal,\n      mails: []\n    }\n  }\n]"
+        "jsCode": "// Récupère les données venant du nœud IF.\nconst data = $input.first().json\n\n// Retourne une réponse propre pour React.\nreturn [\n  {\n    json: {\n      date: data.date,\n      resumeGlobal: data.resumeGlobal,\n      mails: []\n    }\n  }\n]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1616,
-        224
+        1664,
+        192
       ],
       "id": "38f90ae0-d1c6-4ae3-bf9b-9e74c74eae3d",
       "name": "Réponse aucun mail",
@@ -267,8 +267,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1824,
-        224
+        1888,
+        192
       ],
       "id": "3ec1d1f1-b96f-4b31-b0ba-bd560a132dcd",
       "name": "Respond to Webhook1"
@@ -432,7 +432,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "10f8b9fd-d044-482f-9b5f-fc4753f1d887",
+  "versionId": "e82c68a2-1fd2-4f4d-a814-fe6accbbb670",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"

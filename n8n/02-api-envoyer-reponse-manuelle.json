@@ -60,12 +60,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Prépare une réponse simple pour React.\nreturn [\n  {\n    json: {\n      success: true,\n      message: 'Réponse envoyée avec succès par Gmail.'\n    }\n  }\n]"
+        "jsCode": "// Récupère les données propres préparées avant l'envoi Gmail.\nconst originalData = $('Vérifier les données reçues').first().json\n\n// Retourne une réponse simple vers React.\nreturn [\n  {\n    json: {\n      success: true,\n      message: 'Réponse envoyée avec succès par Gmail.',\n      messageId: originalData.messageId,\n      statut: 'répondu'\n    }\n  }\n]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        528,
+        544,
         -32
       ],
       "id": "3dc1e651-87ff-4bac-9759-31c25660aa29",
@@ -81,7 +81,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        736,
+        784,
         -32
       ],
       "id": "eb023ff4-476a-407e-b9bf-76c642e12714",
@@ -140,7 +140,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "311fed6e-8870-43bf-9141-6892ed1c6165",
+  "versionId": "011fe4fe-fa30-4f89-a292-f1b7a30d24a9",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"

@@ -1359,3 +1359,126 @@
   /* Définit une taille lisible. */
   font-size: 16px;
 }
+
+/* Style de la bulle qui indique à l'utilisateur de descendre. */
+.scroll-notice {
+  /* Fixe la bulle sur l'écran même quand la page bouge. */
+  position: fixed;
+
+  /* Place la bulle en bas de l'écran. */
+  bottom: 24px;
+
+  /* Place la bulle à droite de l'écran. */
+  right: 24px;
+
+  /* Définit une largeur confortable. */
+  max-width: 360px;
+
+  /* Affiche le texte et le bouton en colonne. */
+  display: flex;
+
+  /* Met les éléments les uns sous les autres. */
+  flex-direction: column;
+
+  /* Ajoute un espace entre le texte et le bouton. */
+  gap: 12px;
+
+  /* Ajoute un fond moderne avec un dégradé. */
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+
+  /* Définit la couleur du texte en blanc. */
+  color: white;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 18px;
+
+  /* Arrondit fortement les coins. */
+  border-radius: 20px;
+
+  /* Ajoute une ombre visible. */
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+
+  /* Place la bulle au-dessus des autres éléments. */
+  z-index: 1000;
+
+  /* Anime légèrement l'apparition. */
+  animation: noticeAppear 0.25s ease;
+}
+
+/* Style du texte dans la bulle. */
+.scroll-notice p {
+  /* Supprime les marges par défaut. */
+  margin: 0;
+
+  /* Améliore la lisibilité. */
+  line-height: 1.5;
+
+  /* Définit une taille de texte lisible. */
+  font-size: 15px;
+
+  /* Rend le texte légèrement épais. */
+  font-weight: 700;
+}
+
+/* Style du bouton dans la bulle. */
+.scroll-notice button {
+  /* Supprime la bordure par défaut. */
+  border: none;
+
+  /* Définit un fond blanc. */
+  background: white;
+
+  /* Définit une couleur bleue. */
+  color: #2563eb;
+
+  /* Arrondit les coins. */
+  border-radius: 14px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 10px 14px;
+
+  /* Rend le texte plus épais. */
+  font-weight: 800;
+
+  /* Affiche le curseur de clic. */
+  cursor: pointer;
+}
+
+/* Animation d'apparition de la bulle. */
+@keyframes noticeAppear {
+  /* État initial de l'animation. */
+  from {
+    /* Rend la bulle invisible au départ. */
+    opacity: 0;
+
+    /* Décale légèrement la bulle vers le bas. */
+    transform: translateY(12px);
+  }
+
+  /* État final de l'animation. */
+  to {
+    /* Rend la bulle visible. */
+    opacity: 1;
+
+    /* Remet la bulle à sa position normale. */
+    transform: translateY(0);
+  }
+}
+
+/* Adaptation de la bulle sur téléphone. */
+@media (max-width: 640px) {
+  /* Modifie la bulle sur petit écran. */
+  .scroll-notice {
+    /* Place la bulle à gauche. */
+    left: 14px;
+
+    /* Place la bulle à droite. */
+    right: 14px;
+
+    /* Place la bulle plus bas. */
+    bottom: 16px;
+
+    /* Autorise la largeur complète disponible. */
+    max-width: none;
+  }
+}

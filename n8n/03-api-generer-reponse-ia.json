@@ -1,0 +1,200 @@
+{
+  "name": "03-api-generer-reponse-ia",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reply-ai",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "86fea063-5268-4d82-8e58-25cff39c6514",
+      "name": "Webhook",
+      "webhookId": "f18a1e2f-127b-42c8-b29e-141642afe17e",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données envoyées par React.\nconst body = $input.first().json.body || $input.first().json\n\n// Récupère l'expéditeur du mail.\nconst expediteur = body.expediteur\n\n// Récupère l'objet du mail.\nconst objet = body.objet\n\n// Récupère le contenu du mail.\nconst contenu = body.contenu\n\n// Vérifie si l'expéditeur est absent.\nif (!expediteur) {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('Expéditeur manquant.')\n}\n\n// Vérifie si l'objet est absent.\nif (!objet) {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('Objet du mail manquant.')\n}\n\n// Vérifie si le contenu est absent.\nif (!contenu) {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('Contenu du mail manquant.')\n}\n\n// Retourne les données propres au nœud suivant.\nreturn [\n  {\n    json: {\n      expediteur: expediteur,\n      objet: objet,\n      contenu: contenu\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "901dad33-cf3d-405d-818a-cf505e36aefa",
+      "name": "Vérifier les données reçues",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données du mail.\nconst mail = $input.first().json\n\n// Prépare la consigne envoyée à Groq.\nconst prompt = `\nTu dois rédiger une proposition de réponse à un e-mail.\n\nContexte du mail reçu :\nExpéditeur : ${mail.expediteur}\nObjet : ${mail.objet}\nContenu :\n${mail.contenu}\n\nConsignes :\n- Réponds uniquement avec le texte de l'e-mail à envoyer.\n- Écris en français simple, clair et professionnel.\n- Sois poli et naturel.\n- Ne mets pas de titre comme \"Objet\" ou \"Réponse\".\n- Ne mets pas de Markdown.\n- Ne mets pas d'astérisques.\n- Ne promets rien qui n'est pas dans le message reçu.\n- Termine par une formule simple de politesse.\n`\n\n// Retourne le prompt pour Groq.\nreturn [\n  {\n    json: {\n      expediteur: mail.expediteur,\n      objet: mail.objet,\n      contenu: mail.contenu,\n      prompt: prompt\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "e873fcd7-242b-40b2-850b-ddb211b5c483",
+      "name": "Préparer la demande Groq",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {
+          "maxTokensToSample": 500,
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        192
+      ],
+      "id": "cf30816f-9182-4595-be2f-b7a1c31aa6f8",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "fVsi2LpKU91fBvim",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1b483a43-f0b4-4d33-b85e-b4309b37f297",
+      "name": "Générer la réponse IA",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère la réponse générée par Groq.\nconst aiResponse = $input.first().json\n\n// Essaie de récupérer le texte généré dans plusieurs champs possibles.\nconst generatedReply =\n  aiResponse.text ||\n  aiResponse.output ||\n  aiResponse.response ||\n  aiResponse.result ||\n  aiResponse.content ||\n  aiResponse.answer ||\n  aiResponse.message ||\n  ''\n\n// Nettoie la réponse générée.\nconst cleanReply = generatedReply.trim()\n\n// Vérifie si Groq a généré une réponse.\nif (!cleanReply) {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('Groq n’a pas généré de réponse.')\n}\n\n// Retourne la réponse finale vers React.\nreturn [\n  {\n    json: {\n      success: true,\n      reply: cleanReply,\n      message: 'Réponse IA générée avec succès.'\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "962b2984-d01b-4325-a374-25d43e8859dd",
+      "name": "Préparer la réponse finale",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "e2072382-c893-4de8-976b-379b041ba04e",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Vérifier les données reçues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier les données reçues": {
+      "main": [
+        [
+          {
+            "node": "Préparer la demande Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la demande Groq": {
+      "main": [
+        [
+          {
+            "node": "Générer la réponse IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Générer la réponse IA",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Générer la réponse IA": {
+      "main": [
+        [
+          {
+            "node": "Préparer la réponse finale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la réponse finale": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5f56a646-f8f4-4458-ae43-875ad6aec831",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
+  },
+  "id": "lA3GTkoWR8qgjlvz",
+  "tags": []
+}
