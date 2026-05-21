@@ -1,0 +1,150 @@
+{
+  "name": "02-api-envoyer-reponse-manuelle",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reply-manual",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        -32
+      ],
+      "id": "935372d8-5986-4217-b421-a73cd2febf84",
+      "name": "Webhook",
+      "webhookId": "7873779f-880d-426e-b8b9-1c7883c50266",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données envoyées par React.\nconst body = $input.first().json.body || $input.first().json\n\n// Récupère l'identifiant Gmail du message.\nconst messageId = body.messageId\n\n// Récupère le texte de la réponse.\nconst message = body.message\n\n// Vérifie si l'identifiant Gmail est absent.\nif (!messageId) {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('messageId manquant. Impossible de répondre au mail.')\n}\n\n// Vérifie si le message est absent ou vide.\nif (!message || message.trim() === '') {\n  // Arrête le workflow avec une erreur claire.\n  throw new Error('Message de réponse vide.')\n}\n\n// Retourne les données propres au nœud Gmail.\nreturn [\n  {\n    json: {\n      messageId: messageId,\n      message: message.trim()\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -32
+      ],
+      "id": "09a4f189-714d-41f3-a929-c085748ee12d",
+      "name": "Vérifier les données reçues",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.messageId }}",
+        "emailType": "text",
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        -32
+      ],
+      "id": "17ca8ecf-0e02-4ea7-a346-43c96d9205fb",
+      "name": "Envoyer la réponse Gmail",
+      "webhookId": "df0d1bf4-f3ab-486f-970e-95f7a006f33d",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nwdnYP9cRmY2oih2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prépare une réponse simple pour React.\nreturn [\n  {\n    json: {\n      success: true,\n      message: 'Réponse envoyée avec succès par Gmail.'\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        -32
+      ],
+      "id": "3dc1e651-87ff-4bac-9759-31c25660aa29",
+      "name": "Préparer la réponse finale",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        736,
+        -32
+      ],
+      "id": "eb023ff4-476a-407e-b9bf-76c642e12714",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Vérifier les données reçues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier les données reçues": {
+      "main": [
+        [
+          {
+            "node": "Envoyer la réponse Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer la réponse Gmail": {
+      "main": [
+        [
+          {
+            "node": "Préparer la réponse finale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la réponse finale": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "311fed6e-8870-43bf-9141-6892ed1c6165",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
+  },
+  "id": "gumfyOxKArRIQzd0",
+  "tags": []
+}

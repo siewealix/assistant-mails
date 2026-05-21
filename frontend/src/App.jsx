@@ -147,8 +147,8 @@ function App() {
     setReplyStatus('')
   }
 
-  // Prépare la réponse manuelle écrite par l'utilisateur.
-  function handleSendReply() {
+    // Envoie la réponse manuelle vers n8n.
+  async function handleSendReply() {
     // Vérifie si aucun mail n'est sélectionné.
     if (!selectedMail) {
       // Arrête la fonction si aucun mail n'est sélectionné.
@@ -164,15 +164,65 @@ function App() {
       return
     }
 
-    // Affiche la réponse dans la console pour vérifier le contenu.
-    console.log({
-      destinataire: selectedMail.expediteur,
-      objet: `Re: ${selectedMail.objet}`,
-      message: replyText,
-    })
+    // Récupère l'URL n8n utilisée pour envoyer la réponse.
+    const replyUrl = import.meta.env.VITE_N8N_REPLY_MANUAL_URL
 
-    // Affiche un message de succès temporaire.
-    setReplyStatus('Réponse préparée avec succès. Elle sera envoyée avec n8n dans la prochaine étape.')
+    // Vérifie si l'URL est absente.
+    if (!replyUrl) {
+      // Affiche un message d'erreur.
+      setReplyStatus('URL n8n manquante pour envoyer la réponse.')
+
+      // Arrête la fonction.
+      return
+    }
+
+    // Affiche un message pendant l'envoi.
+    setReplyStatus('Envoi de la réponse en cours...')
+
+    // Essaie d'envoyer la réponse à n8n.
+    try {
+      // Envoie une requête POST vers le webhook n8n.
+      const response = await fetch(replyUrl, {
+        // Utilise la méthode POST pour envoyer des données.
+        method: 'POST',
+
+        // Indique que les données envoyées sont au format JSON.
+        headers: {
+          // Définit le type du contenu envoyé.
+          'Content-Type': 'application/json',
+        },
+
+        // Transforme les données JavaScript en JSON.
+        body: JSON.stringify({
+          // Envoie l'identifiant Gmail du message.
+          messageId: selectedMail.messageId,
+
+          // Envoie le contenu de la réponse.
+          message: replyText,
+        }),
+      })
+
+      // Vérifie si n8n a renvoyé une erreur.
+      if (!response.ok) {
+        // Lance une erreur si la réponse n'est pas correcte.
+        throw new Error('Erreur pendant l’envoi de la réponse.')
+      }
+
+      // Convertit la réponse de n8n en JSON.
+      const data = await response.json()
+
+      // Affiche le message de succès.
+      setReplyStatus(data.message || 'Réponse envoyée avec succès.')
+
+      // Vide le champ de réponse après l'envoi.
+      setReplyText('')
+    } catch (problem) {
+      // Affiche l'erreur dans la console.
+      console.error(problem)
+
+      // Affiche un message simple à l'utilisateur.
+      setReplyStatus('Impossible d’envoyer la réponse pour le moment.')
+    }
   }
 
     // Teste la connexion entre React et n8n.
@@ -563,9 +613,9 @@ function App() {
 
             {/* Zone des boutons de la réponse. */}
             <div className="reply-actions">
-              {/* Bouton pour préparer la réponse. */}
+              {/* Bouton pour envoyer la réponse. */}
               <button className="primary-button" onClick={handleSendReply}>
-                Préparer la réponse
+                Envoyer la réponse
               </button>
 
               {/* Bouton pour vider le champ de réponse. */}
