@@ -1314,3 +1314,48 @@
     width: 100%;
   }
 }
+
+/* Style du bloc qui contient le résumé global. */
+.summary-content {
+  /* Affiche les lignes les unes sous les autres. */
+  display: flex;
+
+  /* Met les éléments en colonne. */
+  flex-direction: column;
+
+  /* Ajoute un petit espace entre les lignes. */
+  gap: 8px;
+
+  /* Ajoute un espace au-dessus du résumé. */
+  margin-top: 12px;
+}
+
+/* Style des titres dans le résumé. */
+.summary-title {
+  /* Supprime les marges trop grandes. */
+  margin: 12px 0 4px;
+
+  /* Rend les titres plus visibles. */
+  font-weight: 800;
+
+  /* Définit une couleur foncée. */
+  color: #111827;
+
+  /* Définit une taille agréable. */
+  font-size: 17px;
+}
+
+/* Style des lignes normales du résumé. */
+.summary-line {
+  /* Supprime les marges par défaut. */
+  margin: 0;
+
+  /* Améliore la lecture. */
+  line-height: 1.8;
+
+  /* Définit une couleur douce. */
+  color: #4b5563;
+
+  /* Définit une taille lisible. */
+  font-size: 16px;
+}

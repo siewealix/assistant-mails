@@ -10,17 +10,256 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
+        544,
+        16
+      ],
+      "id": "d4ceb5f3-fc91-4731-8e42-7d9c7684e00e",
+      "name": "Webhook",
+      "webhookId": "09a88eda-6c58-4243-9b98-36b7f8fcf34e"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Crée une date correspondant à maintenant.\nconst now = new Date()\n\n// Crée une copie de la date actuelle.\nconst tomorrow = new Date(now)\n\n// Ajoute un jour pour obtenir la date de demain.\ntomorrow.setDate(now.getDate() + 1)\n\n// Crée une fonction qui transforme une date au format Gmail.\nfunction formatForGmail(date) {\n  // Récupère l'année.\n  const year = date.getFullYear()\n\n  // Récupère le mois avec deux chiffres.\n  const month = String(date.getMonth() + 1).padStart(2, '0')\n\n  // Récupère le jour avec deux chiffres.\n  const day = String(date.getDate()).padStart(2, '0')\n\n  // Retourne la date au format attendu par Gmail.\n  return `${year}/${month}/${day}`\n}\n\n// Crée une fonction qui transforme une date au format React.\nfunction formatForReact(date) {\n  // Récupère l'année.\n  const year = date.getFullYear()\n\n  // Récupère le mois avec deux chiffres.\n  const month = String(date.getMonth() + 1).padStart(2, '0')\n\n  // Récupère le jour avec deux chiffres.\n  const day = String(date.getDate()).padStart(2, '0')\n\n  // Retourne la date au format simple.\n  return `${year}-${month}-${day}`\n}\n\n// Prépare la date du jour pour Gmail.\nconst todayForGmail = formatForGmail(now)\n\n// Prépare la date de demain pour Gmail.\nconst tomorrowForGmail = formatForGmail(tomorrow)\n\n// Prépare la date du jour pour React.\nconst todayForReact = formatForReact(now)\n\n// Prépare la recherche Gmail des mails reçus aujourd'hui.\nconst searchQuery = `in:inbox after:${todayForGmail} before:${tomorrowForGmail}`\n\n// Retourne les données au nœud suivant.\nreturn [\n  {\n    json: {\n      today: todayForReact,\n      searchQuery: searchQuery\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        16
+      ],
+      "id": "deeee034-6f5f-48fa-875f-4ad82e7073e8",
+      "name": "Préparer la recherche du jour",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": false,
+        "filters": {
+          "q": "=={{ $json.searchQuery }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        16
+      ],
+      "id": "d8853610-4fac-4f17-a0c8-52806623e9d5",
+      "name": "Récupérer les mails du jour",
+      "webhookId": "abdd377b-c43a-4615-b6de-1f0c341a4f7f",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nwdnYP9cRmY2oih2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
         0
       ],
-      "id": "ef02cb11-cb94-4ac5-9beb-f0f0cca86a39",
-      "name": "Webhook",
-      "webhookId": "263edc99-9a5c-44fc-9c87-ead6f40b9262"
+      "id": "69d7be88-440e-4a0d-8a54-22d41a96393c",
+      "name": "Lire le détail de chaque mail",
+      "webhookId": "05b988e6-c07d-4640-9911-95134d57e493",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nwdnYP9cRmY2oih2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère tous les e-mails reçus depuis le nœud Gmail précédent.\nconst items = $input.all()\n\n// Transforme une valeur quelconque en texte simple.\nfunction toText(value) {\n  // Vérifie si la valeur est absente.\n  if (value === undefined || value === null) {\n    // Retourne un texte vide.\n    return ''\n  }\n\n  // Vérifie si la valeur est déjà un texte.\n  if (typeof value === 'string') {\n    // Retourne directement le texte.\n    return value\n  }\n\n  // Vérifie si la valeur est un nombre.\n  if (typeof value === 'number') {\n    // Convertit le nombre en texte.\n    return String(value)\n  }\n\n  // Vérifie si la valeur est un tableau.\n  if (Array.isArray(value)) {\n    // Convertit chaque élément du tableau en texte.\n    return value.map((item) => toText(item)).filter(Boolean).join(', ')\n  }\n\n  // Vérifie si la valeur est un objet.\n  if (typeof value === 'object') {\n    // Vérifie si l'objet contient un nom et une adresse e-mail.\n    if (value.name && value.email) {\n      // Retourne le nom et l'adresse.\n      return `${value.name} <${value.email}>`\n    }\n\n    // Vérifie si l'objet contient un nom et une adresse.\n    if (value.name && value.address) {\n      // Retourne le nom et l'adresse.\n      return `${value.name} <${value.address}>`\n    }\n\n    // Vérifie si l'objet contient une valeur textuelle.\n    if (value.text) {\n      // Retourne le texte.\n      return toText(value.text)\n    }\n\n    // Vérifie si l'objet contient une valeur HTML.\n    if (value.html) {\n      // Retourne le HTML.\n      return toText(value.html)\n    }\n\n    // Vérifie si l'objet contient une valeur.\n    if (value.value) {\n      // Retourne la valeur.\n      return toText(value.value)\n    }\n\n    // Vérifie si l'objet contient une adresse e-mail.\n    if (value.email) {\n      // Retourne l'adresse e-mail.\n      return toText(value.email)\n    }\n\n    // Vérifie si l'objet contient une adresse.\n    if (value.address) {\n      // Retourne l'adresse.\n      return toText(value.address)\n    }\n\n    // Vérifie si l'objet contient un body.\n    if (value.body) {\n      // Retourne le body.\n      return toText(value.body)\n    }\n\n    // Vérifie si l'objet contient des données.\n    if (value.data) {\n      // Retourne les données.\n      return toText(value.data)\n    }\n  }\n\n  // Retourne un texte vide si rien n'est exploitable.\n  return ''\n}\n\n// Récupère la première valeur disponible parmi plusieurs champs possibles.\nfunction getFirstValue(object, names) {\n  // Parcourt tous les noms possibles.\n  for (const name of names) {\n    // Récupère la valeur du champ courant.\n    const value = toText(object?.[name])\n\n    // Vérifie si la valeur existe.\n    if (value) {\n      // Retourne la première valeur trouvée.\n      return value\n    }\n  }\n\n  // Retourne un texte vide si rien n'est trouvé.\n  return ''\n}\n\n// Décode un contenu Gmail encodé en base64url.\nfunction decodeBase64Url(value) {\n  // Vérifie si la valeur est vide.\n  if (!value) {\n    // Retourne un texte vide.\n    return ''\n  }\n\n  // Remplace les caractères base64url par des caractères base64 classiques.\n  const base64 = value.replace(/-/g, '+').replace(/_/g, '/')\n\n  // Décode le contenu base64.\n  return Buffer.from(base64, 'base64').toString('utf8')\n}\n\n// Décode les entités HTML fréquentes.\nfunction decodeHtmlEntities(value) {\n  // Vérifie si la valeur est vide.\n  if (!value) {\n    // Retourne un texte vide.\n    return ''\n  }\n\n  // Remplace les entités HTML par des caractères normaux.\n  return value\n    .replace(/&nbsp;/gi, ' ')\n    .replace(/&zwnj;/gi, ' ')\n    .replace(/&zwj;/gi, ' ')\n    .replace(/&shy;/gi, ' ')\n    .replace(/&#8204;/g, ' ')\n    .replace(/&#8205;/g, ' ')\n    .replace(/&#173;/g, ' ')\n    .replace(/&#39;/g, \"'\")\n    .replace(/&apos;/gi, \"'\")\n    .replace(/&quot;/gi, '\"')\n    .replace(/&amp;/gi, '&')\n    .replace(/&lt;/gi, '<')\n    .replace(/&gt;/gi, '>')\n    .replace(/&eacute;/gi, 'é')\n    .replace(/&egrave;/gi, 'è')\n    .replace(/&ecirc;/gi, 'ê')\n    .replace(/&agrave;/gi, 'à')\n    .replace(/&ccedil;/gi, 'ç')\n    .replace(/&ocirc;/gi, 'ô')\n    .replace(/&ugrave;/gi, 'ù')\n    .replace(/&#(\\d+);/g, (match, number) => String.fromCharCode(Number(number)))\n}\n\n// Nettoie un contenu HTML pour obtenir un texte lisible.\nfunction cleanHtml(value) {\n  // Vérifie si la valeur est vide.\n  if (!value) {\n    // Retourne un texte vide.\n    return ''\n  }\n\n  // Décode d'abord les entités HTML visibles comme &zwnj;.\n  const decodedFirst = decodeHtmlEntities(value)\n\n  // Supprime les scripts.\n  const withoutScripts = decodedFirst.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n\n  // Supprime les styles.\n  const withoutStyles = withoutScripts.replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n\n  // Supprime les commentaires HTML.\n  const withoutComments = withoutStyles.replace(/<!--[\\s\\S]*?-->/g, ' ')\n\n  // Remplace certaines balises par des espaces pour éviter de coller les phrases.\n  const withSpaces = withoutComments\n    .replace(/<\\/p>/gi, ' ')\n    .replace(/<br\\s*\\/?>/gi, ' ')\n    .replace(/<\\/div>/gi, ' ')\n    .replace(/<\\/tr>/gi, ' ')\n    .replace(/<\\/td>/gi, ' ')\n    .replace(/<\\/li>/gi, ' ')\n\n  // Supprime toutes les balises HTML restantes.\n  const withoutTags = withSpaces.replace(/<[^>]*>/g, ' ')\n\n  // Décode encore une fois les entités restantes.\n  const decodedSecond = decodeHtmlEntities(withoutTags)\n\n  // Supprime les vrais caractères invisibles Unicode.\n  const withoutInvisible = decodedSecond.replace(/[\\u200B-\\u200D\\uFEFF\\u00AD]/g, ' ')\n\n  // Supprime les répétitions inutiles de la mention image.\n  const withoutTooManyImages = withoutInvisible.replace(/\\[image:\\s*[^\\]]+\\]/gi, ' ')\n\n  // Remplace plusieurs espaces par un seul espace.\n  const cleanText = withoutTooManyImages.replace(/\\s+/g, ' ').trim()\n\n  // Retourne le texte propre.\n  return cleanText\n}\n\n// Nettoie le nom de l'expéditeur.\nfunction cleanSender(value) {\n  // Transforme la valeur en texte.\n  const sender = toText(value)\n\n  // Vérifie si l'expéditeur est vide.\n  if (!sender) {\n    // Retourne une valeur par défaut.\n    return 'Expéditeur inconnu'\n  }\n\n  // Supprime les guillemets autour du nom de l'expéditeur.\n  const cleaned = sender\n    .replace(/^\"([^\"]+)\"\\s*</, '$1 <')\n    .replace(/\\\\\"/g, '\"')\n    .trim()\n\n  // Retourne l'expéditeur nettoyé.\n  return cleaned || 'Expéditeur inconnu'\n}\n\n// Récupère un header Gmail.\nfunction getHeader(mail, headerName) {\n  // Met le nom recherché en minuscules.\n  const wantedName = headerName.toLowerCase()\n\n  // Récupère les headers dans payload.headers.\n  const payloadHeaders = mail.payload?.headers || []\n\n  // Vérifie si payload.headers est un tableau.\n  if (Array.isArray(payloadHeaders)) {\n    // Cherche le header demandé.\n    const foundHeader = payloadHeaders.find((header) => header.name?.toLowerCase() === wantedName)\n\n    // Vérifie si le header existe.\n    if (foundHeader?.value) {\n      // Retourne la valeur du header.\n      return foundHeader.value\n    }\n  }\n\n  // Récupère les headers directs.\n  const directHeaders = mail.headers || {}\n\n  // Vérifie si headers est un tableau.\n  if (Array.isArray(directHeaders)) {\n    // Cherche le header demandé.\n    const foundHeader = directHeaders.find((header) => header.name?.toLowerCase() === wantedName)\n\n    // Vérifie si le header existe.\n    if (foundHeader?.value) {\n      // Retourne la valeur du header.\n      return foundHeader.value\n    }\n  }\n\n  // Vérifie si headers est un objet.\n  if (typeof directHeaders === 'object' && directHeaders !== null) {\n    // Cherche le header avec le nom exact.\n    const exactValue = directHeaders[headerName]\n\n    // Vérifie si la valeur exacte existe.\n    if (exactValue) {\n      // Retourne la valeur exacte.\n      return toText(exactValue)\n    }\n\n    // Cherche le header avec le nom en minuscules.\n    const lowerValue = directHeaders[wantedName]\n\n    // Vérifie si la valeur en minuscules existe.\n    if (lowerValue) {\n      // Retourne la valeur en minuscules.\n      return toText(lowerValue)\n    }\n\n    // Cherche une clé qui correspond au header demandé.\n    const matchingKey = Object.keys(directHeaders).find((key) => key.toLowerCase() === wantedName)\n\n    // Vérifie si une clé correspond.\n    if (matchingKey) {\n      // Retourne la valeur trouvée.\n      return toText(directHeaders[matchingKey])\n    }\n  }\n\n  // Retourne un texte vide si rien n'est trouvé.\n  return ''\n}\n\n// Récupère l'expéditeur du mail.\nfunction getSender(mail) {\n  // Cherche l'expéditeur dans les champs directs.\n  const directSender = getFirstValue(mail, [\n    'from',\n    'From',\n    'sender',\n    'Sender',\n    'expediteur',\n    'replyTo',\n    'reply_to'\n  ])\n\n  // Vérifie si un expéditeur direct existe.\n  if (directSender) {\n    // Retourne l'expéditeur nettoyé.\n    return cleanSender(directSender)\n  }\n\n  // Cherche l'expéditeur dans le header From.\n  const fromHeader = getHeader(mail, 'From')\n\n  // Vérifie si le header From existe.\n  if (fromHeader) {\n    // Retourne l'expéditeur nettoyé.\n    return cleanSender(fromHeader)\n  }\n\n  // Cherche l'expéditeur dans le header Sender.\n  const senderHeader = getHeader(mail, 'Sender')\n\n  // Vérifie si le header Sender existe.\n  if (senderHeader) {\n    // Retourne l'expéditeur nettoyé.\n    return cleanSender(senderHeader)\n  }\n\n  // Cherche l'expéditeur dans le header Reply-To.\n  const replyToHeader = getHeader(mail, 'Reply-To')\n\n  // Vérifie si Reply-To existe.\n  if (replyToHeader) {\n    // Retourne l'expéditeur nettoyé.\n    return cleanSender(replyToHeader)\n  }\n\n  // Retourne une valeur par défaut.\n  return 'Expéditeur inconnu'\n}\n\n// Récupère l'objet du mail.\nfunction getSubject(mail) {\n  // Cherche l'objet dans les champs directs.\n  const directSubject = getFirstValue(mail, ['subject', 'Subject', 'objet'])\n\n  // Vérifie si un objet direct existe.\n  if (directSubject) {\n    // Retourne l'objet direct.\n    return cleanHtml(directSubject)\n  }\n\n  // Cherche l'objet dans les headers.\n  const headerSubject = getHeader(mail, 'Subject')\n\n  // Vérifie si un objet existe dans les headers.\n  if (headerSubject) {\n    // Retourne l'objet trouvé.\n    return cleanHtml(headerSubject)\n  }\n\n  // Retourne une valeur par défaut.\n  return 'Sans objet'\n}\n\n// Lit toutes les parties disponibles dans le payload Gmail.\nfunction getBodyFromPayload(payload) {\n  // Crée une liste pour les textes simples.\n  const plainTexts = []\n\n  // Crée une liste pour les contenus HTML.\n  const htmlTexts = []\n\n  // Crée une fonction interne pour parcourir le payload.\n  function readPart(part) {\n    // Vérifie si la partie existe.\n    if (!part) {\n      // Arrête la fonction.\n      return\n    }\n\n    // Vérifie si cette partie contient des données.\n    if (part.body?.data) {\n      // Décode les données.\n      const decoded = decodeBase64Url(part.body.data)\n\n      // Vérifie si le contenu décodé existe.\n      if (decoded) {\n        // Vérifie si la partie est du texte simple.\n        if (part.mimeType === 'text/plain') {\n          // Ajoute le texte simple.\n          plainTexts.push(decoded)\n        } else {\n          // Ajoute le contenu HTML ou général.\n          htmlTexts.push(decoded)\n        }\n      }\n    }\n\n    // Récupère les sous-parties.\n    const subParts = part.parts || []\n\n    // Parcourt toutes les sous-parties.\n    for (const subPart of subParts) {\n      // Lit chaque sous-partie.\n      readPart(subPart)\n    }\n  }\n\n  // Lance la lecture du payload complet.\n  readPart(payload)\n\n  // Fusionne les textes simples.\n  const plainContent = plainTexts.join(' ')\n\n  // Fusionne les contenus HTML.\n  const htmlContent = htmlTexts.join(' ')\n\n  // Nettoie le texte simple.\n  const cleanedPlain = cleanHtml(plainContent)\n\n  // Nettoie le HTML.\n  const cleanedHtml = cleanHtml(htmlContent)\n\n  // Vérifie si le texte simple est plus complet.\n  if (cleanedPlain.length >= cleanedHtml.length) {\n    // Retourne le texte simple.\n    return cleanedPlain\n  }\n\n  // Retourne le texte HTML nettoyé.\n  return cleanedHtml\n}\n\n// Formate la date du mail.\nfunction formatMailDate(mail) {\n  // Récupère la date directe.\n  const directDate = getFirstValue(mail, ['date', 'Date', 'receivedDate'])\n\n  // Récupère la date depuis les headers.\n  const headerDate = getHeader(mail, 'Date')\n\n  // Récupère la date interne Gmail.\n  const internalDate = mail.internalDate\n\n  // Vérifie si internalDate existe et ressemble à un nombre.\n  if (internalDate && !isNaN(Number(internalDate))) {\n    // Transforme internalDate en date JavaScript.\n    const date = new Date(Number(internalDate))\n\n    // Vérifie si la date est valide.\n    if (!isNaN(date.getTime())) {\n      // Retourne la date en français.\n      return date.toLocaleString('fr-FR')\n    }\n  }\n\n  // Choisit la meilleure date texte disponible.\n  const rawDate = directDate || headerDate\n\n  // Vérifie si une date texte existe.\n  if (rawDate) {\n    // Transforme la date texte en date JavaScript.\n    const date = new Date(rawDate)\n\n    // Vérifie si la date est valide.\n    if (!isNaN(date.getTime())) {\n      // Retourne la date en français.\n      return date.toLocaleString('fr-FR')\n    }\n  }\n\n  // Retourne une valeur par défaut.\n  return 'Date inconnue'\n}\n\n// Récupère le contenu complet du mail.\nfunction getMailContent(mail) {\n  // Récupère le texte direct.\n  const directText = getFirstValue(mail, ['text', 'textPlain', 'plainText', 'bodyText', 'content'])\n\n  // Récupère le HTML direct.\n  const directHtml = getFirstValue(mail, ['html', 'textHtml', 'bodyHtml', 'htmlBody'])\n\n  // Récupère le contenu document si n8n l'utilise.\n  const documentContent = getFirstValue(mail, ['document'])\n\n  // Récupère le contenu body si n8n l'utilise.\n  const bodyContent = getFirstValue(mail, ['body'])\n\n  // Récupère le contenu data si n8n l'utilise.\n  const dataContent = getFirstValue(mail, ['data'])\n\n  // Récupère le contenu depuis payload.\n  const payloadContent = getBodyFromPayload(mail.payload)\n\n  // Récupère le snippet Gmail.\n  const snippet = getFirstValue(mail, ['snippet', 'preview'])\n\n  // Prépare toutes les sources possibles.\n  const sources = [\n    directText,\n    directHtml,\n    documentContent,\n    bodyContent,\n    dataContent,\n    payloadContent,\n    snippet\n  ]\n\n  // Nettoie toutes les sources disponibles.\n  const cleanedSources = sources.map((source) => cleanHtml(source)).filter(Boolean)\n\n  // Vérifie si au moins une source existe.\n  if (cleanedSources.length > 0) {\n    // Trie les contenus du plus long au plus court.\n    cleanedSources.sort((a, b) => b.length - a.length)\n\n    // Retourne le contenu le plus long.\n    return cleanedSources[0]\n  }\n\n  // Retourne une valeur par défaut.\n  return 'Contenu non disponible.'\n}\n\n// Crée la date actuelle.\nconst now = new Date()\n\n// Récupère l'année actuelle.\nconst year = now.getFullYear()\n\n// Récupère le mois actuel avec deux chiffres.\nconst month = String(now.getMonth() + 1).padStart(2, '0')\n\n// Récupère le jour actuel avec deux chiffres.\nconst day = String(now.getDate()).padStart(2, '0')\n\n// Crée la date du jour au format React.\nconst today = `${year}-${month}-${day}`\n\n// Garde seulement les éléments qui ressemblent à des e-mails.\nconst realItems = items.filter((item) => {\n  // Récupère le mail courant.\n  const mail = item.json\n\n  // Vérifie si le mail contient des informations utiles.\n  return mail.id || mail.messageId || mail.payload || mail.html || mail.text || mail.document || mail.snippet\n})\n\n// Transforme chaque mail Gmail en objet simple pour React.\nconst mails = realItems.map((item, index) => {\n  // Récupère le mail courant.\n  const mail = item.json\n\n  // Récupère l'expéditeur.\n  const expediteur = getSender(mail)\n\n  // Récupère l'objet.\n  const objet = getSubject(mail)\n\n  // Récupère la date de réception.\n  const dateReception = formatMailDate(mail)\n\n  // Récupère le contenu complet.\n  const contenu = getMailContent(mail)\n\n  // Crée un résumé court pour la carte.\n  const resume = contenu.length > 300 ? `${contenu.slice(0, 300)}...` : contenu\n\n  // Retourne le mail dans le format attendu par React.\n  return {\n    // Identifiant simple pour React.\n    id: index + 1,\n\n    // Identifiant Gmail.\n    messageId: mail.id || mail.messageId || '',\n\n    // Identifiant du thread Gmail.\n    threadId: mail.threadId || '',\n\n    // Expéditeur du mail.\n    expediteur: expediteur,\n\n    // Objet du mail.\n    objet: objet,\n\n    // Date de réception.\n    dateReception: dateReception,\n\n    // Résumé court.\n    resume: resume,\n\n    // Contenu complet.\n    contenu: contenu,\n\n    // Statut de réponse.\n    statut: 'non répondu'\n  }\n})\n\n// Prépare le résumé global provisoire.\nconst resumeGlobal = `${mails.length} e-mail(s) reçu(s) aujourd’hui ont été récupéré(s) depuis Gmail.`\n\n// Retourne les données finales à React.\nreturn [\n  {\n    json: {\n      date: today,\n      resumeGlobal: resumeGlobal,\n      mails: mails\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        0
+      ],
+      "id": "45c3db80-3ddb-47d6-8235-9dc8675238d8",
+      "name": "Structurer les données pour React",
+      "alwaysOutputData": true
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "{\n  \"date\": \"2026-05-20\",\n  \"resumeGlobal\": \"Aujourd’hui, vous avez reçu plusieurs e-mails concernant un entretien de stage, une réunion de suivi, une demande de document et une information administrative.\",\n  \"mails\": [\n    {\n      \"id\": 1,\n      \"expediteur\": \"rh@entreprise-stage.com\",\n      \"objet\": \"Entretien pour votre demande de stage\",\n      \"dateReception\": \"2026-05-20 08:45\",\n      \"resume\": \"Le service RH propose un entretien pour discuter de votre demande de stage.\",\n      \"contenu\": \"Bonjour, nous avons bien reçu votre demande de stage. Nous souhaitons organiser un entretien afin d’échanger avec vous sur votre profil et vos disponibilités.\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 2,\n      \"expediteur\": \"responsable.projet@gmail.com\",\n      \"objet\": \"Réunion de suivi du projet\",\n      \"dateReception\": \"2026-05-20 10:15\",\n      \"resume\": \"Le responsable souhaite organiser une réunion pour faire le point sur l’avancement du projet.\",\n      \"contenu\": \"Bonjour, pouvez-vous confirmer votre disponibilité pour une réunion de suivi cette semaine afin de faire le point sur l’évolution du projet ?\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 3,\n      \"expediteur\": \"secretariat@ecole.com\",\n      \"objet\": \"Document manquant dans votre dossier\",\n      \"dateReception\": \"2026-05-20 11:30\",\n      \"resume\": \"Le secrétariat signale qu’un document manque dans le dossier administratif.\",\n      \"contenu\": \"Bonjour, après vérification de votre dossier, il manque une copie de votre attestation de stage. Merci de nous la transmettre dès que possible.\",\n      \"statut\": \"non répondu\"\n    },\n    {\n      \"id\": 4,\n      \"expediteur\": \"contact@formation.com\",\n      \"objet\": \"Confirmation d’inscription\",\n      \"dateReception\": \"2026-05-20 14:05\",\n      \"resume\": \"L’organisme confirme votre inscription à une formation en ligne.\",\n      \"contenu\": \"Bonjour, nous vous confirmons votre inscription à la formation en ligne prévue cette semaine. Vous recevrez le lien de connexion prochainement.\",\n      \"statut\": \"non répondu\"\n    }\n  ]\n}",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3120,
+        0
+      ],
+      "id": "6ba9776a-6bf8-439b-90d9-845472233b62",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données venant du nœud précédent.\nconst data = $input.first().json\n\n// Récupère la liste des messages.\nconst messages = data.messages || []\n\n// Crée une liste vide pour stocker les IDs préparés.\nconst preparedItems = []\n\n// Parcourt tous les messages.\nfor (const message of messages) {\n  // Récupère l'identifiant Gmail du message.\n  const rawId = message.id || message.messageId || message.message_id\n\n  // Vérifie si l'identifiant existe.\n  if (!rawId) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Transforme l'identifiant en texte propre.\n  const messageId = String(rawId).trim()\n\n  // Vérifie si l'identifiant est vide.\n  if (!messageId) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Vérifie si l'identifiant est invalide.\n  if (messageId === 'undefined' || messageId === 'null' || messageId.includes('{{')) {\n    // Ignore ce message.\n    continue\n  }\n\n  // Ajoute un élément propre pour le nœud Gmail suivant.\n  preparedItems.push({\n    json: {\n      id: messageId,\n      messageId: messageId,\n      threadId: message.threadId || ''\n    }\n  })\n}\n\n// Vérifie si aucun identifiant valide n'a été trouvé.\nif (preparedItems.length === 0) {\n  // Arrête le workflow avec un message clair.\n  throw new Error('Aucun ID Gmail valide trouvé pour lire le détail des mails.')\n}\n\n// Retourne les IDs au nœud Gmail suivant.\nreturn preparedItems"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        0
+      ],
+      "id": "bf0039a0-cc24-4e9f-9758-4474fe031277",
+      "name": "Préparer les IDs des mails",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données préparées pour React.\nconst data = $input.first().json\n\n// Récupère la liste des mails.\nconst mails = data.mails || []\n\n// Transforme chaque mail en texte simple pour Groq.\nconst mailsText = mails.map((mail, index) => {\n  // Retourne un bloc lisible pour chaque mail.\n  return `\nMail ${index + 1}\nExpéditeur : ${mail.expediteur}\nObjet : ${mail.objet}\nDate : ${mail.dateReception}\nRésumé court : ${mail.resume}\nContenu : ${mail.contenu}\n`\n}).join('\\n--------------------\\n')\n\n// Prépare la consigne envoyée à Groq.\nconst prompt = `\nTu dois analyser les e-mails reçus aujourd'hui et produire un résumé global clair.\n\nRéponds exactement avec cette structure :\n\nRésumé général :\nÉcris ici un court paragraphe qui résume la journée.\n\nPoints importants :\n- Point important 1\n- Point important 2\n- Point important 3\n\nActions à faire :\n- Action 1 s'il y en a une\n- Sinon écris : Aucune action urgente détectée.\n\nContraintes :\n- Réponds uniquement en français.\n- Ne répète pas tous les mails un par un.\n- Ne mets pas de Markdown avec des astérisques.\n- Ne mets pas de texte comme **Mail 1**.\n- Fais une réponse claire, courte et facile à lire.\n\nVoici les e-mails reçus aujourd'hui :\n\n${mailsText}\n` \n\n// Retourne les données originales avec le prompt ajouté.\nreturn [\n  {\n    json: {\n      date: data.date,\n      resumeGlobal: data.resumeGlobal,\n      mails: data.mails,\n      prompt: prompt\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2320,
+        0
+      ],
+      "id": "02c0bbfb-9ee0-40b2-b748-cf9626c6482c",
+      "name": "Préparer la demande Groq",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "messages": {
+          "messageValues": []
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2528,
+        0
+      ],
+      "id": "c9a34f73-38ab-42cc-88be-87173f47e84b",
+      "name": "Générer le résumé global",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {
+          "maxTokensToSample": 500,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        176
+      ],
+      "id": "ccc15eae-2a4b-463a-9c94-01aa18dd83ca",
+      "name": "Modèle Groq",
+      "credentials": {
+        "groqApi": {
+          "id": "fVsi2LpKU91fBvim",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère la réponse du nœud Basic LLM Chain.\nconst aiResponse = $input.first().json\n\n// Récupère les données originales préparées avant Groq.\nconst originalData = $('Préparer la demande Groq').first().json\n\n// Essaie de récupérer le résumé dans plusieurs champs possibles.\nconst generatedSummary =\n  aiResponse.text ||\n  aiResponse.output ||\n  aiResponse.response ||\n  aiResponse.result ||\n  aiResponse.content ||\n  aiResponse.answer ||\n  aiResponse.message ||\n  ''\n\n// Vérifie si Groq a vraiment généré un résumé.\nconst finalSummary = generatedSummary || originalData.resumeGlobal\n\n// Retourne le JSON final attendu par React.\nreturn [\n  {\n    json: {\n      date: originalData.date,\n      resumeGlobal: finalSummary,\n      mails: originalData.mails\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        0
+      ],
+      "id": "fe6c5837-abae-42ad-8fd7-2d2f4b81a5ed",
+      "name": "Ajouter le résumé Groq au JSON",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère tous les éléments reçus depuis le nœud Gmail précédent.\nconst items = $input.all()\n\n// Crée une date avec la date actuelle.\nconst now = new Date()\n\n// Récupère l'année actuelle.\nconst year = now.getFullYear()\n\n// Récupère le mois actuel avec deux chiffres.\nconst month = String(now.getMonth() + 1).padStart(2, '0')\n\n// Récupère le jour actuel avec deux chiffres.\nconst day = String(now.getDate()).padStart(2, '0')\n\n// Crée la date du jour au format utilisé par React.\nconst today = `${year}-${month}-${day}`\n\n// Crée une liste vide pour stocker les vrais messages Gmail.\nconst messages = []\n\n// Parcourt tous les éléments reçus.\nfor (const item of items) {\n  // Récupère le JSON de l'élément courant.\n  const data = item.json || {}\n\n  // Vérifie si l'élément courant contient directement un ID Gmail.\n  if (data.id || data.messageId || data.message_id) {\n    // Ajoute l'élément courant dans la liste des messages.\n    messages.push(data)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé messages.\n  if (Array.isArray(data.messages)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.messages)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé data.\n  if (Array.isArray(data.data)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.data)\n  }\n\n  // Vérifie si les messages sont dans un tableau appelé items.\n  if (Array.isArray(data.items)) {\n    // Ajoute tous ces messages dans la liste.\n    messages.push(...data.items)\n  }\n}\n\n// Garde seulement les messages qui ont un vrai identifiant.\nconst validMessages = messages.filter((message) => {\n  // Récupère l'identifiant possible du message.\n  const id = message.id || message.messageId || message.message_id\n\n  // Vérifie si l'identifiant existe.\n  if (!id) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Transforme l'identifiant en texte.\n  const textId = String(id).trim()\n\n  // Refuse les identifiants vides.\n  if (!textId) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Refuse les valeurs invalides.\n  if (textId === 'undefined' || textId === 'null' || textId.includes('{{')) {\n    // Refuse ce message.\n    return false\n  }\n\n  // Accepte ce message.\n  return true\n})\n\n// Vérifie si aucun mail valide n'a été trouvé.\nif (validMessages.length === 0) {\n  // Retourne une réponse propre pour React.\n  return [\n    {\n      json: {\n        hasMails: false,\n        date: today,\n        resumeGlobal: \"Aucun e-mail reçu aujourd’hui. Vous n’avez aucune action à traiter pour le moment.\",\n        mails: []\n      }\n    }\n  ]\n}\n\n// Retourne les messages valides pour la branche True.\nreturn [\n  {\n    json: {\n      hasMails: true,\n      date: today,\n      messages: validMessages\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        16
+      ],
+      "id": "f5ab7366-2885-4094-80b9-6032a5ff5d37",
+      "name": "Vérifier s’il y a des mails",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "78944045-f3e3-43ff-9e1f-17dd35245249",
+              "leftValue": "={{ $json.hasMails }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        16
+      ],
+      "id": "570c9feb-182d-4f19-a19e-e4b64bb6e773",
+      "name": "Y a-t-il des mails ?",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données venant du nœud précédent.\nconst data = $input.first().json\n\n// Retourne uniquement le JSON attendu par React.\nreturn [\n  {\n    json: {\n      date: data.date,\n      resumeGlobal: data.resumeGlobal,\n      mails: []\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        224
+      ],
+      "id": "38f90ae0-d1c6-4ae3-bf9b-9e74c74eae3d",
+      "name": "Réponse aucun mail",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
         "options": {
           "responseCode": 200
         }
@@ -28,11 +267,11 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        208,
-        0
+        1824,
+        224
       ],
-      "id": "209e7a99-81ae-49db-bb8f-1c46be8cbcee",
-      "name": "Respond to Webhook"
+      "id": "3ec1d1f1-b96f-4b31-b0ba-bd560a132dcd",
+      "name": "Respond to Webhook1"
     }
   ],
   "pinData": {},
@@ -41,7 +280,146 @@
       "main": [
         [
           {
+            "node": "Préparer la recherche du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la recherche du jour": {
+      "main": [
+        [
+          {
+            "node": "Récupérer les mails du jour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer les mails du jour": {
+      "main": [
+        [
+          {
+            "node": "Vérifier s’il y a des mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire le détail de chaque mail": {
+      "main": [
+        [
+          {
+            "node": "Structurer les données pour React",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structurer les données pour React": {
+      "main": [
+        [
+          {
+            "node": "Préparer la demande Groq",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer les IDs des mails": {
+      "main": [
+        [
+          {
+            "node": "Lire le détail de chaque mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la demande Groq": {
+      "main": [
+        [
+          {
+            "node": "Générer le résumé global",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Générer le résumé global": {
+      "main": [
+        [
+          {
+            "node": "Ajouter le résumé Groq au JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modèle Groq": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Générer le résumé global",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajouter le résumé Groq au JSON": {
+      "main": [
+        [
+          {
             "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier s’il y a des mails": {
+      "main": [
+        [
+          {
+            "node": "Y a-t-il des mails ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Y a-t-il des mails ?": {
+      "main": [
+        [
+          {
+            "node": "Préparer les IDs des mails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Réponse aucun mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Réponse aucun mail": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
             "type": "main",
             "index": 0
           }
@@ -54,8 +432,9 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "15654705-5f19-4f53-8d83-028f264e8328",
+  "versionId": "10f8b9fd-d044-482f-9b5f-fc4753f1d887",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
   },
   "id": "pjlmNIpG080NN455",

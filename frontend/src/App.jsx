@@ -54,8 +54,8 @@ function App() {
           throw new Error('URL n8n des mails manquante dans le fichier .env.')
         }
 
-        // Demande à n8n de fournir les e-mails du jour.
-        const response = await fetch(mailsUrl)
+        // Demande les données à n8n en évitant le cache du navigateur.
+        const response = await fetch(`${mailsUrl}?time=${Date.now()}`)
 
         // Vérifie si la récupération du fichier a échoué.
         if (!response.ok) {
@@ -71,12 +71,33 @@ function App() {
 
         // Vide l'éventuel message d'erreur.
         setError('')
-      } catch (problem) {
+            } catch (problem) {
         // Affiche l'erreur dans la console du navigateur.
         console.error(problem)
 
-        // Affiche un message simple à l'utilisateur.
-        setError('Les e-mails ne peuvent pas être chargés pour le moment.')
+        // Garde les anciennes données si elles existent déjà.
+        setMailData((previousData) => {
+          // Vérifie si des données sont déjà affichées.
+          if (previousData) {
+            // Garde les données déjà chargées.
+            return previousData
+          }
+
+          // Retourne null si aucune donnée n'existe.
+          return null
+        })
+
+        // Affiche l'erreur seulement si aucune donnée n'est encore disponible.
+        setError((previousError) => {
+          // Vérifie si des données existent déjà.
+          if (mailData) {
+            // N'affiche pas d'erreur si les mails sont déjà visibles.
+            return ''
+          }
+
+          // Affiche le message d'erreur seulement si rien n'est chargé.
+          return 'Les e-mails ne peuvent pas être chargés pour le moment.'
+        })
       } finally {
         // Indique que le chargement est terminé.
         setLoading(false)
@@ -209,7 +230,32 @@ function App() {
   function handleCloseFullMail() {
     // Supprime l'identifiant du mail affiché.
     setFullMailId(null)
-  } 
+  }
+  
+    // Transforme le résumé global en lignes propres à afficher.
+  function formatSummaryText(summary) {
+    // Vérifie si le résumé est vide.
+    if (!summary) {
+      // Retourne une liste vide.
+      return []
+    }
+
+    // Supprime les astérisques inutiles produits parfois par l'IA.
+    const cleanedSummary = summary.replace(/\*\*/g, '')
+
+    // Coupe le texte en lignes quand il y a des titres connus.
+    const formattedSummary = cleanedSummary
+      .replace(/Résumé général\s*:/gi, '\nRésumé général :')
+      .replace(/Points importants\s*:/gi, '\nPoints importants :')
+      .replace(/Actions à faire\s*:/gi, '\nActions à faire :')
+      .replace(/\s-\s/g, '\n- ')
+
+    // Coupe le résumé ligne par ligne.
+    const lines = formattedSummary.split('\n')
+
+    // Nettoie chaque ligne et retire les lignes vides.
+    return lines.map((line) => line.trim()).filter(Boolean)
+  }
 
   // Retourne l'interface visible de l'application.
   return (
@@ -316,8 +362,26 @@ function App() {
           {/* Message affiché en cas d'erreur. */}
           {error && <p className="error-message">{error}</p>}
 
-          {/* Résumé global affiché quand tout est chargé. */}
-          {!loading && !error && <p>{mailData?.resumeGlobal}</p>}
+          {/* Affiche le résumé global avec une mise en forme propre. */}
+          {!loading && mailData?.resumeGlobal && (
+            // Bloc qui contient le résumé formaté.
+            <div className="summary-content">
+              {/* Parcourt chaque ligne du résumé. */}
+              {formatSummaryText(mailData.resumeGlobal).map((line, index) => (
+                // Affiche chaque ligne avec un style adapté.
+                <p
+                  // Donne une clé unique à chaque ligne.
+                  key={index}
+
+                  // Applique une classe différente aux titres.
+                  className={line.endsWith(':') ? 'summary-title' : 'summary-line'}
+                >
+                  {/* Affiche le texte de la ligne. */}
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
         </article>
       </section>
 
