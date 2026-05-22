@@ -11,7 +11,7 @@
       "typeVersion": 2.1,
       "position": [
         544,
-        96
+        352
       ],
       "id": "d4ceb5f3-fc91-4731-8e42-7d9c7684e00e",
       "name": "Webhook",
@@ -25,7 +25,7 @@
       "typeVersion": 2,
       "position": [
         768,
-        96
+        352
       ],
       "id": "deeee034-6f5f-48fa-875f-4ad82e7073e8",
       "name": "Préparer la recherche du jour",
@@ -45,7 +45,7 @@
       "typeVersion": 2.2,
       "position": [
         992,
-        96
+        352
       ],
       "id": "d8853610-4fac-4f17-a0c8-52806623e9d5",
       "name": "Récupérer les mails du jour",
@@ -69,7 +69,7 @@
       "typeVersion": 2.2,
       "position": [
         1888,
-        0
+        208
       ],
       "id": "69d7be88-440e-4a0d-8a54-22d41a96393c",
       "name": "Lire le détail de chaque mail",
@@ -89,8 +89,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2128,
-        0
+        2112,
+        208
       ],
       "id": "45c3db80-3ddb-47d6-8235-9dc8675238d8",
       "name": "Structurer les données pour React",
@@ -105,8 +105,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        3280,
-        0
+        4032,
+        208
       ],
       "id": "6ba9776a-6bf8-439b-90d9-845472233b62",
       "name": "Respond to Webhook"
@@ -119,7 +119,7 @@
       "typeVersion": 2,
       "position": [
         1664,
-        0
+        208
       ],
       "id": "bf0039a0-cc24-4e9f-9758-4474fe031277",
       "name": "Préparer les IDs des mails",
@@ -132,8 +132,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2400,
-        0
+        2336,
+        208
       ],
       "id": "02c0bbfb-9ee0-40b2-b748-cf9626c6482c",
       "name": "Préparer la demande Groq",
@@ -151,8 +151,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        2640,
-        0
+        2560,
+        96
       ],
       "id": "c9a34f73-38ab-42cc-88be-87173f47e84b",
       "name": "Générer le résumé global",
@@ -169,8 +169,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        2640,
-        208
+        2560,
+        304
       ],
       "id": "ccc15eae-2a4b-463a-9c94-01aa18dd83ca",
       "name": "Modèle Groq",
@@ -188,8 +188,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3040,
-        0
+        2912,
+        208
       ],
       "id": "fe6c5837-abae-42ad-8fd7-2d2f4b81a5ed",
       "name": "Ajouter le résumé Groq au JSON",
@@ -203,7 +203,7 @@
       "typeVersion": 2,
       "position": [
         1216,
-        96
+        352
       ],
       "id": "f5ab7366-2885-4094-80b9-6032a5ff5d37",
       "name": "Vérifier s’il y a des mails",
@@ -238,7 +238,7 @@
       "typeVersion": 2.3,
       "position": [
         1440,
-        96
+        352
       ],
       "id": "570c9feb-182d-4f19-a19e-e4b64bb6e773",
       "name": "Y a-t-il des mails ?",
@@ -252,7 +252,7 @@
       "typeVersion": 2,
       "position": [
         1664,
-        192
+        496
       ],
       "id": "38f90ae0-d1c6-4ae3-bf9b-9e74c74eae3d",
       "name": "Réponse aucun mail",
@@ -267,11 +267,137 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1888,
-        192
+        2912,
+        496
       ],
       "id": "3ec1d1f1-b96f-4b31-b0ba-bd560a132dcd",
       "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données finales venant du nœud précédent.\nconst finalData = $input.first().json\n\n// Transforme les données finales en texte JSON bien formaté.\nconst jsonText = JSON.stringify(finalData, null, 2)\n\n// Retourne les données finales avec une version texte du fichier.\nreturn [\n  {\n    json: {\n      date: finalData.date,\n      resumeGlobal: finalData.resumeGlobal,\n      mails: finalData.mails,\n      jsonText: jsonText\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        208
+      ],
+      "id": "d0e3d15f-e7db-4d47-b9a6-93d6a4b4d9a8",
+      "name": "Préparer le fichier JSON",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données finales venant du nœud précédent.\nconst finalData = $input.first().json\n\n// Transforme les données finales en texte JSON bien formaté.\nconst jsonText = JSON.stringify(finalData, null, 2)\n\n// Retourne les données finales avec une version texte du fichier.\nreturn [\n  {\n    json: {\n      date: finalData.date,\n      resumeGlobal: finalData.resumeGlobal,\n      mails: finalData.mails,\n      jsonText: jsonText\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        496
+      ],
+      "id": "0abe5761-b968-4468-b350-4a5c9a94221e",
+      "name": "Préparer le fichier JSON1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "encoding": "utf8",
+          "fileName": "mails-today.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        3360,
+        208
+      ],
+      "id": "97def6dc-cc76-4f15-b288-45890221ede3",
+      "name": "Convertir en fichier JSON",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {
+          "encoding": "utf8",
+          "fileName": "mails-today.json"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2112,
+        496
+      ],
+      "id": "500a35db-de82-4ee6-88ef-32cf1c22f3f8",
+      "name": "Convertir en fichier JSON1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "D:/assistant_mails/data/mails-today.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        3584,
+        208
+      ],
+      "id": "6b70c60f-ef85-4d1a-afb5-2eafa25ba101",
+      "name": "Sauvegarder mails-today.json",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "D:/assistant_mails/data/mails-today.json",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        496
+      ],
+      "id": "97e71e7c-ab9f-43e5-9a8e-283739febbd6",
+      "name": "Sauvegarder mails-today.json1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données préparées avant la conversion en fichier.\nconst finalData = $('Préparer le fichier JSON').first().json\n\n// Retourne uniquement les données attendues par React.\nreturn [\n  {\n    json: {\n      date: finalData.date,\n      resumeGlobal: finalData.resumeGlobal,\n      mails: finalData.mails\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3808,
+        208
+      ],
+      "id": "1f8786de-493c-4b87-9a09-4fb9a57ead94",
+      "name": "Retourner le JSON final",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Récupère les données du nœud qui prépare la réponse quand il n'y a aucun mail.\nconst finalData = $('Réponse aucun mail').first().json\n\n// Retourne uniquement les données attendues par React.\nreturn [\n  {\n    json: {\n      date: finalData.date,\n      resumeGlobal: finalData.resumeGlobal,\n      mails: finalData.mails\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2624,
+        496
+      ],
+      "id": "aa9ba036-f46e-42e5-a0a1-e14f3f0b213f",
+      "name": "Retourner le JSON final1",
+      "alwaysOutputData": false
     }
   ],
   "pinData": {},
@@ -379,7 +505,7 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Préparer le fichier JSON",
             "type": "main",
             "index": 0
           }
@@ -419,7 +545,95 @@
       "main": [
         [
           {
+            "node": "Préparer le fichier JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le fichier JSON1": {
+      "main": [
+        [
+          {
+            "node": "Convertir en fichier JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer le fichier JSON": {
+      "main": [
+        [
+          {
+            "node": "Convertir en fichier JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir en fichier JSON": {
+      "main": [
+        [
+          {
+            "node": "Sauvegarder mails-today.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir en fichier JSON1": {
+      "main": [
+        [
+          {
+            "node": "Sauvegarder mails-today.json1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sauvegarder mails-today.json": {
+      "main": [
+        [
+          {
+            "node": "Retourner le JSON final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sauvegarder mails-today.json1": {
+      "main": [
+        [
+          {
+            "node": "Retourner le JSON final1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retourner le JSON final1": {
+      "main": [
+        [
+          {
             "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retourner le JSON final": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
             "type": "main",
             "index": 0
           }
@@ -432,7 +646,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e82c68a2-1fd2-4f4d-a814-fe6accbbb670",
+  "versionId": "cf60920b-05d6-4422-8f14-d61fea3fe8fe",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6b0aefc4bc8c976a233a14b3ca332944631adf659353792425aa217858848b03"
