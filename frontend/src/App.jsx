@@ -88,8 +88,11 @@ function App() {
       // Convertit la réponse n8n en objet JavaScript.
       const data = await response.json()
 
-      // Enregistre les données reçues dans React.
-      setMailData(data)
+      // Applique les statuts répondus déjà enregistrés dans le navigateur.
+      const dataWithStatuses = applyAnsweredStatuses(data)
+
+      // Enregistre les données corrigées dans React.
+      setMailData(dataWithStatuses)
 
       // Vérifie si on doit afficher un message de succès.
       if (showSuccessMessage) {
@@ -270,6 +273,9 @@ function App() {
 
       // Convertit la réponse de n8n en JSON.
       const data = await response.json()
+
+      // Enregistre ce mail comme répondu dans le navigateur.
+      saveAnsweredMessageId(selectedMail.messageId)
 
       // Met à jour la liste des mails après l'envoi de la réponse.
       setMailData((previousData) => {
@@ -527,6 +533,93 @@ function App() {
       // Animation douce pendant le déplacement.
       behavior: 'smooth',
     })
+  }
+
+    // Récupère la liste des messages déjà répondus depuis le navigateur.
+  function getAnsweredMessageIds() {
+    // Récupère la valeur stockée dans localStorage.
+    const savedValue = localStorage.getItem('answeredMessageIds')
+
+    // Vérifie si aucune valeur n'existe encore.
+    if (!savedValue) {
+      // Retourne une liste vide.
+      return []
+    }
+
+    // Essaie de convertir le texte stocké en tableau JavaScript.
+    try {
+      // Retourne le tableau récupéré.
+      return JSON.parse(savedValue)
+    } catch (problem) {
+      // Affiche l'erreur dans la console.
+      console.error(problem)
+
+      // Retourne une liste vide en cas d'erreur.
+      return []
+    }
+  }
+
+  // Enregistre un mail comme répondu dans le navigateur.
+  function saveAnsweredMessageId(messageId) {
+    // Vérifie si l'identifiant du mail est absent.
+    if (!messageId) {
+      // Arrête la fonction.
+      return
+    }
+
+    // Récupère les anciens identifiants déjà enregistrés.
+    const oldIds = getAnsweredMessageIds()
+
+    // Vérifie si ce mail est déjà enregistré.
+    if (oldIds.includes(messageId)) {
+      // Arrête la fonction pour éviter les doublons.
+      return
+    }
+
+    // Ajoute le nouvel identifiant à la liste.
+    const newIds = [...oldIds, messageId]
+
+    // Enregistre la nouvelle liste dans le navigateur.
+    localStorage.setItem('answeredMessageIds', JSON.stringify(newIds))
+  }
+
+  // Applique les statuts répondus sur les mails chargés depuis n8n.
+  function applyAnsweredStatuses(data) {
+    // Récupère les identifiants des mails déjà répondus.
+    const answeredIds = getAnsweredMessageIds()
+
+    // Vérifie si les données ou les mails sont absents.
+    if (!data || !Array.isArray(data.mails)) {
+      // Retourne les données telles quelles.
+      return data
+    }
+
+    // Met à jour les mails avec le bon statut.
+    const updatedMails = data.mails.map((mail) => {
+      // Vérifie si ce mail a déjà été répondu.
+      if (answeredIds.includes(mail.messageId)) {
+        // Retourne le mail avec le statut répondu.
+        return {
+          // Garde toutes les informations du mail.
+          ...mail,
+
+          // Met le statut à répondu.
+          statut: 'répondu',
+        }
+      }
+
+      // Retourne le mail sans changement.
+      return mail
+    })
+
+    // Retourne les données avec la liste mise à jour.
+    return {
+      // Garde toutes les autres données.
+      ...data,
+
+      // Remplace seulement la liste des mails.
+      mails: updatedMails,
+    }
   }
 
   // Retourne l'interface visible de l'application.
