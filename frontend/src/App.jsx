@@ -39,6 +39,9 @@ function App() {
     // Crée une variable pour savoir si une réponse est en cours d'envoi.
   const [isSendingReply, setIsSendingReply] = useState(false)
 
+    // Crée une variable pour afficher un message après l'actualisation des mails.
+  const [refreshMessage, setRefreshMessage] = useState('')
+
     // Crée une variable pour afficher une bulle d'information à l'utilisateur.
   const [scrollNotice, setScrollNotice] = useState('')
 
@@ -51,73 +54,76 @@ function App() {
   // Crée une variable pour savoir si le test n8n est en cours.
   const [n8nLoading, setN8nLoading] = useState(false)
 
+    // Charge les e-mails depuis n8n.
+  async function loadMailsFromN8n(showSuccessMessage = false) {
+    // Indique que le chargement commence.
+    setLoading(true)
+
+    // Vide l'ancien message d'erreur.
+    setError('')
+
+    // Vide l'ancien message d'actualisation.
+    setRefreshMessage('')
+
+    // Essaie de récupérer les mails depuis n8n.
+    try {
+      // Récupère l'URL n8n depuis le fichier .env.
+      const mailsUrl = import.meta.env.VITE_N8N_GET_MAILS_URL
+
+      // Vérifie si l'URL n8n est absente.
+      if (!mailsUrl) {
+        // Signale une erreur si l'URL n'existe pas.
+        throw new Error('URL n8n des mails manquante dans le fichier .env.')
+      }
+
+      // Demande les mails à n8n en évitant le cache du navigateur.
+      const response = await fetch(`${mailsUrl}?time=${Date.now()}`)
+
+      // Vérifie si n8n a répondu avec une erreur.
+      if (!response.ok) {
+        // Signale une erreur si la réponse n'est pas correcte.
+        throw new Error('n8n a renvoyé une erreur pendant le chargement des mails.')
+      }
+
+      // Convertit la réponse n8n en objet JavaScript.
+      const data = await response.json()
+
+      // Enregistre les données reçues dans React.
+      setMailData(data)
+
+      // Vérifie si on doit afficher un message de succès.
+      if (showSuccessMessage) {
+        // Affiche un message de succès.
+        setRefreshMessage('E-mails actualisés avec succès.')
+      }
+    } catch (problem) {
+      // Affiche l'erreur dans la console du navigateur.
+      console.error(problem)
+
+      // Garde les anciennes données si elles existent déjà.
+      setMailData((previousData) => {
+        // Vérifie si des données sont déjà présentes.
+        if (previousData) {
+          // Garde les anciennes données.
+          return previousData
+        }
+
+        // Retourne null si aucune donnée n'existe.
+        return null
+      })
+
+      // Affiche un message d'erreur.
+      setError('Les e-mails ne peuvent pas être chargés pour le moment.')
+    } finally {
+      // Indique que le chargement est terminé.
+      setLoading(false)
+    }
+  }
+
   // Lance le chargement des e-mails quand la page s'ouvre.
   useEffect(() => {
-    // Crée une fonction pour charger les données depuis le fichier JSON.
-    async function loadMails() {
-      // Essaie de charger les données.
-      try {
-                // Récupère l'URL n8n qui donne les e-mails du jour.
-        const mailsUrl = import.meta.env.VITE_N8N_GET_MAILS_URL
-
-        // Vérifie si l'URL n8n est absente du fichier .env.
-        if (!mailsUrl) {
-          // Signale une erreur si l'URL n'est pas configurée.
-          throw new Error('URL n8n des mails manquante dans le fichier .env.')
-        }
-
-        // Demande les données à n8n en évitant le cache du navigateur.
-        const response = await fetch(`${mailsUrl}?time=${Date.now()}`)
-
-        // Vérifie si la récupération du fichier a échoué.
-        if (!response.ok) {
-          // Arrête le chargement et signale une erreur.
-          throw new Error('Impossible de charger le fichier des e-mails.')
-        }
-
-        // Convertit le contenu du fichier JSON en objet JavaScript.
-        const data = await response.json()
-
-        // Enregistre les données dans l'état de l'application.
-        setMailData(data)
-
-        // Vide l'éventuel message d'erreur.
-        setError('')
-            } catch (problem) {
-        // Affiche l'erreur dans la console du navigateur.
-        console.error(problem)
-
-        // Garde les anciennes données si elles existent déjà.
-        setMailData((previousData) => {
-          // Vérifie si des données sont déjà affichées.
-          if (previousData) {
-            // Garde les données déjà chargées.
-            return previousData
-          }
-
-          // Retourne null si aucune donnée n'existe.
-          return null
-        })
-
-        // Affiche l'erreur seulement si aucune donnée n'est encore disponible.
-        setError((previousError) => {
-          // Vérifie si des données existent déjà.
-          if (mailData) {
-            // N'affiche pas d'erreur si les mails sont déjà visibles.
-            return ''
-          }
-
-          // Affiche le message d'erreur seulement si rien n'est chargé.
-          return 'Les e-mails ne peuvent pas être chargés pour le moment.'
-        })
-      } finally {
-        // Indique que le chargement est terminé.
-        setLoading(false)
-      }
-    }
-
-    // Appelle la fonction de chargement.
-    loadMails()
+    // Charge les mails depuis n8n sans afficher de message de succès.
+    loadMailsFromN8n(false)
   }, [])
 
   // Récupère la liste des e-mails si elle existe, sinon utilise une liste vide.
@@ -527,6 +533,20 @@ function App() {
   return (
     // Conteneur principal de l'application.
     <main className="app">
+
+      {/* Affiche un message après l'actualisation des e-mails. */}
+      {refreshMessage && (
+        // Section visible seulement quand un message d'actualisation existe.
+        <section className="refresh-section">
+          {/* Carte du message d'actualisation. */}
+          <article className="refresh-card">
+            {/* Texte du message. */}
+            <p>{refreshMessage}</p>
+          </article>
+        </section>
+      )}
+
+
       {/* Section principale de présentation. */}
       <section className="hero">
         {/* Bloc du texte principal. */}
@@ -544,9 +564,19 @@ function App() {
 
           {/* Zone des boutons principaux. */}
           <div className="hero-actions">
-            {/* Bouton qui teste la connexion entre React et n8n. */}
-            <button className="primary-button" onClick={handleTestN8nConnection}>
-              {n8nLoading ? 'Test en cours...' : 'Tester n8n'}
+                        {/* Bouton qui recharge les e-mails depuis n8n. */}
+            <button
+              // Classe CSS du bouton principal.
+              className="primary-button"
+
+              // Recharge les mails au clic.
+              onClick={() => loadMailsFromN8n(true)}
+
+              // Désactive le bouton pendant le chargement.
+              disabled={loading}
+            >
+              {/* Change le texte du bouton pendant le chargement. */}
+              {loading ? 'Actualisation...' : 'Actualiser les e-mails'}
             </button>
 
             {/* Bouton prévu plus tard pour générer un résumé avec l'IA. */}

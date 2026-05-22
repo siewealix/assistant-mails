@@ -1582,3 +1582,42 @@ button:disabled {
     flex: 1;
   }
 }
+
+/* Style de la section du message d'actualisation. */
+.refresh-section {
+  /* Ajoute un espace sous la section. */
+  margin-bottom: 24px;
+}
+
+/* Style de la carte d'actualisation. */
+.refresh-card {
+  /* Ajoute un fond vert clair. */
+  background: rgba(16, 185, 129, 0.12);
+
+  /* Ajoute une bordure verte douce. */
+  border: 1px solid rgba(16, 185, 129, 0.25);
+
+  /* Arrondit les coins. */
+  border-radius: 20px;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 16px 20px;
+
+  /* Ajoute une ombre légère. */
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+/* Style du texte dans la carte d'actualisation. */
+.refresh-card p {
+  /* Supprime les marges par défaut. */
+  margin: 0;
+
+  /* Définit une couleur verte foncée. */
+  color: #047857;
+
+  /* Rend le texte plus visible. */
+  font-weight: 800;
+
+  /* Améliore la lisibilité. */
+  line-height: 1.6;
+}
