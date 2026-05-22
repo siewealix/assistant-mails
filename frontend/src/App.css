@@ -1482,3 +1482,28 @@
     max-width: none;
   }
 }
+
+/* Style général des boutons désactivés. */
+button:disabled {
+  /* Réduit légèrement la visibilité du bouton. */
+  opacity: 0.65;
+
+  /* Empêche le clic visuellement. */
+  cursor: not-allowed;
+
+  /* Empêche l'effet de déplacement au survol. */
+  transform: none;
+}
+
+/* Empêche les petits boutons désactivés de bouger au survol. */
+.small-primary-button:disabled:hover,
+.small-secondary-button:disabled:hover,
+.small-neutral-button:disabled:hover,
+.primary-button:disabled:hover,
+.secondary-button:disabled:hover {
+  /* Garde le bouton à sa position normale. */
+  transform: none;
+
+  /* Retire l'ombre forte au survol. */
+  box-shadow: none;
+}

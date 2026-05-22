@@ -33,6 +33,9 @@ function App() {
     // Crée une variable pour savoir quel mail est en cours de génération IA.
   const [aiLoadingMailId, setAiLoadingMailId] = useState(null)
 
+    // Crée une variable pour savoir si une réponse est en cours d'envoi.
+  const [isSendingReply, setIsSendingReply] = useState(false)
+
     // Crée une variable pour afficher une bulle d'information à l'utilisateur.
   const [scrollNotice, setScrollNotice] = useState('')
 
@@ -162,11 +165,17 @@ function App() {
     }, 300)
   }
 
-    // Envoie la réponse manuelle vers n8n.
+      // Envoie la réponse manuelle vers n8n.
   async function handleSendReply() {
     // Vérifie si aucun mail n'est sélectionné.
     if (!selectedMail) {
       // Arrête la fonction si aucun mail n'est sélectionné.
+      return
+    }
+
+    // Vérifie si un envoi est déjà en cours.
+    if (isSendingReply) {
+      // Arrête la fonction pour éviter un double clic.
       return
     }
 
@@ -190,6 +199,9 @@ function App() {
       // Arrête la fonction.
       return
     }
+
+    // Indique que l'envoi commence.
+    setIsSendingReply(true)
 
     // Affiche un message pendant l'envoi.
     setReplyStatus('Envoi de la réponse en cours...')
@@ -226,9 +238,7 @@ function App() {
       // Convertit la réponse de n8n en JSON.
       const data = await response.json()
 
-      
-
-            // Met à jour la liste des mails après l'envoi de la réponse.
+      // Met à jour la liste des mails après l'envoi de la réponse.
       setMailData((previousData) => {
         // Vérifie si les anciennes données existent.
         if (!previousData) {
@@ -242,7 +252,10 @@ function App() {
           if (mail.messageId === selectedMail.messageId) {
             // Retourne le même mail avec le statut répondu.
             return {
+              // Garde toutes les anciennes informations du mail.
               ...mail,
+
+              // Modifie seulement le statut.
               statut: 'répondu',
             }
           }
@@ -253,7 +266,10 @@ function App() {
 
         // Retourne toutes les données avec la nouvelle liste de mails.
         return {
+          // Garde toutes les anciennes données.
           ...previousData,
+
+          // Remplace seulement la liste des mails.
           mails: updatedMails,
         }
       })
@@ -264,11 +280,14 @@ function App() {
       // Vide le champ de réponse après l'envoi.
       setReplyText('')
     } catch (problem) {
-      // Affiche l'erreur dans la console.
+      // Affiche l'erreur dans la console du navigateur.
       console.error(problem)
 
       // Affiche un message simple à l'utilisateur.
       setReplyStatus('Impossible d’envoyer la réponse pour le moment.')
+    } finally {
+      // Indique que l'envoi est terminé.
+      setIsSendingReply(false)
     }
   }
 
@@ -675,8 +694,18 @@ function App() {
                   Répondre
                 </button>
 
-                {/* Bouton pour générer une réponse automatique avec Groq. */}
-                <button className="small-secondary-button" onClick={() => handleGenerateAiReply(mail)}>
+                                {/* Bouton pour générer une réponse automatique avec Groq. */}
+                <button
+                  // Classe CSS du bouton secondaire.
+                  className="small-secondary-button"
+
+                  // Lance la génération IA au clic.
+                  onClick={() => handleGenerateAiReply(mail)}
+
+                  // Désactive le bouton pendant la génération IA.
+                  disabled={aiLoadingMailId === mail.id}
+                >
+                  {/* Affiche un texte différent pendant la génération. */}
                   {aiLoadingMailId === mail.id ? 'Génération...' : 'Réponse IA'}
                 </button>
               </div>
@@ -783,13 +812,33 @@ function App() {
 
             {/* Zone des boutons de la réponse. */}
             <div className="reply-actions">
-              {/* Bouton pour envoyer la réponse. */}
-              <button className="primary-button" onClick={handleSendReply}>
-                Envoyer la réponse
+                            {/* Bouton pour envoyer la réponse par Gmail. */}
+              <button
+                // Classe CSS du bouton principal.
+                className="primary-button"
+
+                // Appelle la fonction d'envoi au clic.
+                onClick={handleSendReply}
+
+                // Désactive le bouton pendant l'envoi.
+                disabled={isSendingReply}
+              >
+                {/* Affiche un texte différent pendant l'envoi. */}
+                {isSendingReply ? 'Envoi...' : 'Envoyer la réponse'}
               </button>
 
-              {/* Bouton pour vider le champ de réponse. */}
-              <button className="secondary-button" onClick={() => setReplyText('')}>
+                            {/* Bouton pour vider le champ de réponse. */}
+              <button
+                // Classe CSS du bouton secondaire.
+                className="secondary-button"
+
+                // Vide le champ de réponse au clic.
+                onClick={() => setReplyText('')}
+
+                // Désactive le bouton pendant l'envoi.
+                disabled={isSendingReply}
+              >
+                {/* Texte du bouton. */}
                 Effacer
               </button>
             </div>
