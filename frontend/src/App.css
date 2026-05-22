@@ -1507,3 +1507,78 @@ button:disabled {
   /* Retire l'ombre forte au survol. */
   box-shadow: none;
 }
+
+/* Style de la zone des filtres de statut. */
+.status-filters {
+  /* Affiche les boutons sur une ligne. */
+  display: flex;
+
+  /* Permet aux boutons de passer à la ligne sur petit écran. */
+  flex-wrap: wrap;
+
+  /* Ajoute de l'espace entre les boutons. */
+  gap: 10px;
+}
+
+/* Style normal d'un bouton de filtre. */
+.filter-button {
+  /* Supprime la bordure standard. */
+  border: none;
+
+  /* Ajoute un fond clair. */
+  background: rgba(37, 99, 235, 0.08);
+
+  /* Définit la couleur du texte. */
+  color: #2563eb;
+
+  /* Ajoute de l'espace intérieur. */
+  padding: 11px 14px;
+
+  /* Arrondit les coins. */
+  border-radius: 14px;
+
+  /* Rend le texte plus visible. */
+  font-weight: 800;
+
+  /* Affiche le curseur de clic. */
+  cursor: pointer;
+
+  /* Anime doucement le bouton. */
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+/* Style du bouton de filtre au survol. */
+.filter-button:hover {
+  /* Déplace légèrement le bouton vers le haut. */
+  transform: translateY(-2px);
+
+  /* Rend le fond un peu plus visible. */
+  background: rgba(37, 99, 235, 0.14);
+}
+
+/* Style du filtre actif. */
+.filter-button.active {
+  /* Ajoute un dégradé bleu violet. */
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+
+  /* Met le texte en blanc. */
+  color: white;
+
+  /* Ajoute une ombre douce. */
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+/* Adaptation mobile des filtres. */
+@media (max-width: 640px) {
+  /* Les boutons de filtre prennent mieux la largeur sur mobile. */
+  .status-filters {
+    /* Définit une largeur complète. */
+    width: 100%;
+  }
+
+  /* Les boutons prennent toute la largeur disponible. */
+  .filter-button {
+    /* Permet aux boutons de s'étirer. */
+    flex: 1;
+  }
+}

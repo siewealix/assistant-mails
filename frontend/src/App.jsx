@@ -15,6 +15,9 @@ function App() {
   // Crée une variable pour stocker le texte recherché par l'utilisateur.
   const [searchTerm, setSearchTerm] = useState('')
 
+    // Crée une variable pour filtrer les mails selon leur statut.
+  const [statusFilter, setStatusFilter] = useState('tous')
+
   // Crée une variable pour savoir si les données sont en chargement.
   const [loading, setLoading] = useState(true)
 
@@ -126,7 +129,7 @@ function App() {
     // Recherche le mail que l'utilisateur veut lire entièrement.
   const fullMail = mails.find((mail) => mail.id === fullMailId)
 
-  // Filtre les e-mails selon la recherche de l'utilisateur.
+    // Filtre les e-mails selon la recherche et le statut choisi.
   const filteredMails = mails.filter((mail) => {
     // Transforme la recherche en minuscules.
     const search = searchTerm.toLowerCase()
@@ -140,9 +143,33 @@ function App() {
     // Vérifie si le résumé contient le texte recherché.
     const summaryMatch = mail.resume.toLowerCase().includes(search)
 
-    // Garde le mail si une condition est vraie.
-    return senderMatch || subjectMatch || summaryMatch
+    // Vérifie si le mail correspond à la recherche.
+    const searchMatch = senderMatch || subjectMatch || summaryMatch
+
+    // Vérifie si l'utilisateur veut voir tous les mails.
+    const allStatusMatch = statusFilter === 'tous'
+
+    // Vérifie si l'utilisateur veut voir seulement les mails non répondus.
+    const notAnsweredMatch = statusFilter === 'non-repondu' && mail.statut === 'non répondu'
+
+    // Vérifie si l'utilisateur veut voir seulement les mails répondus.
+    const answeredMatch = statusFilter === 'repondu' && mail.statut === 'répondu'
+
+    // Vérifie si le mail correspond au filtre de statut.
+    const statusMatch = allStatusMatch || notAnsweredMatch || answeredMatch
+
+    // Garde le mail seulement s'il correspond à la recherche et au statut.
+    return searchMatch && statusMatch
   })
+
+    // Compte le nombre total de mails.
+  const totalMails = mails.length
+
+  // Compte le nombre de mails non répondus.
+  const notAnsweredCount = mails.filter((mail) => mail.statut === 'non répondu').length
+
+  // Compte le nombre de mails répondus.
+  const answeredCount = mails.filter((mail) => mail.statut === 'répondu').length
 
     // Ouvre la zone de réponse pour un mail précis.
   function handleOpenReply(mail) {
@@ -635,6 +662,45 @@ function App() {
 
             {/* Nombre d'e-mails affichés. */}
             <p>{filteredMails.length} e-mail(s) affiché(s)</p>
+          </div>
+
+                    {/* Zone des boutons de filtre par statut. */}
+          <div className="status-filters">
+            {/* Bouton pour afficher tous les mails. */}
+            <button
+              // Applique une classe active si le filtre actuel est tous.
+              className={statusFilter === 'tous' ? 'filter-button active' : 'filter-button'}
+
+              // Active le filtre tous au clic.
+              onClick={() => setStatusFilter('tous')}
+            >
+              {/* Texte du bouton avec le nombre total de mails. */}
+              Tous ({totalMails})
+            </button>
+
+            {/* Bouton pour afficher les mails non répondus. */}
+            <button
+              // Applique une classe active si le filtre actuel est non répondu.
+              className={statusFilter === 'non-repondu' ? 'filter-button active' : 'filter-button'}
+
+              // Active le filtre non répondu au clic.
+              onClick={() => setStatusFilter('non-repondu')}
+            >
+              {/* Texte du bouton avec le nombre de mails non répondus. */}
+              Non répondus ({notAnsweredCount})
+            </button>
+
+            {/* Bouton pour afficher les mails répondus. */}
+            <button
+              // Applique une classe active si le filtre actuel est répondu.
+              className={statusFilter === 'repondu' ? 'filter-button active' : 'filter-button'}
+
+              // Active le filtre répondu au clic.
+              onClick={() => setStatusFilter('repondu')}
+            >
+              {/* Texte du bouton avec le nombre de mails répondus. */}
+              Répondus ({answeredCount})
+            </button>
           </div>
 
           {/* Champ de recherche. */}
